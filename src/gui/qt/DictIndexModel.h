@@ -2,6 +2,7 @@
 #define _DICTINDEXMODEL_H_
 
 #include "dict/iDict.h"
+#include "MutexLock.h"
 
 #include <QAbstractListModel>
 
@@ -17,12 +18,15 @@ public:
     virtual QVariant data(const QModelIndex &index, int role) const;
     virtual QVariant headerData(int section, Qt::Orientation orientation,
                                 int role = Qt::DisplayRole) const;
-    iIndexItem* item(int row) { return (*m_list)[row]; }
+    iIndexItem* item(int row);
+
 private slots:
-    void onUpdataList(void *v);
+    void onUpdataList(int curitem);
 
 private:
-    IndexList* m_list;
+    IndexList  *m_indexList;
+    int m_indexListStart;
+    MutexCriticalSection m_cs;
 };
 
 #endif

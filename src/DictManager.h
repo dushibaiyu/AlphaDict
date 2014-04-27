@@ -1,7 +1,7 @@
 #ifndef _DICTMANAGER_H_
 #define _DICTMANAGER_H_
 
-#define DICT_MAX_OPEN  10
+#define DICT_MAX_OPEN 3
 
 #include "iDict.h"
 #include "TaskManager.h"
@@ -27,41 +27,50 @@ private:
       string m_input;
 };
 
+class LoadDictTask: public Task
+{
+public:
+      LoadDictTask():Task(0, false) {};
+      ~LoadDictTask() {}
+      virtual void doWork();
+};
+
 class DictManager
 {
 friend class LookupTask;
+friend class LoadDictTask;
 
 public:
     static DictManager& getReference();
     DictManager();
     ~DictManager();
-
-	bool load(const string& dictname, string *dictidenti);
-    bool load(const string& dictname, const string& dictidenti);
+    void initialization();
 	void lookup(const string& input);
-	void lookup(const string& srcLan, const string& detLan, const string& input);
-
-	IndexList* getIndexList();
+    int getIndexList(IndexList& indexList, int start, int end);
 	void onClick(int index, iIndexItem* item);
 
-    void setSrcLan(const string& lan) { m_srcLan = lan; }
-    void setDetLan(const string& lan) { m_detLan = lan; }
-    void onAddLookupResult(string& input, int which, iDictItem& item);
-
-    void sendIndexListMessage();
-
+    void setSrcLan(const string& lan);
+    void setDetLan(const string& lan);
+    
 private:
-    iDict* findIndexDict();
+    bool match(const string& srcLan, const string& detLan);
+    void onAddLookupResult(string& input, int which, iDictItem& item);
+	void loadDict(bool more=false);
+    iDict* createHandleByDict(const string dictpath);
+    iDict* createHandleByIdenitfier(const string identi);
 
-    iDict* m_dicts[DICT_MAX_OPEN];
-    Task* m_tasks[DICT_MAX_OPEN];
-    map<string, iDict*> m_dictMap;
-
+    struct DictOpen{
+        iDict *dict;
+        Task  *task;
+        int   id;
+    };
+    
+    DictOpen m_dictOpen[DICT_MAX_OPEN];
+    bool m_bReload;
     int m_dictTotal;
-
-    string m_srcLan;
-    string m_detLan;
     string m_input;
+    int m_indexListStart;
+    IndexList  *m_indexList;
 
     MutexCriticalSection m_cs;
 };

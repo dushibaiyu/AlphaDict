@@ -12,6 +12,9 @@ public:
 	static unsigned int getTimeMS();
 	static wchar_t* mbstowcs(const char *mb);
 	static wchar_t  mbrtowc_r(char** mb);
+    static wchar_t* mbsrtowcs_r(const char *mb);
+    static char*    wcsrtombs_r(const wchar_t *wc);
+    static int      wcrtomb_r(char* s, wchar_t *wc);
     static bool isDir(const string& dir);
     static bool isFile(const string& filename);
     static void copyFile(const string& from, const string& to);

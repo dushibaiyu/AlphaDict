@@ -4,9 +4,7 @@
 #include "MessageQueue.h"
 #include "QtMessager.h"
 #include "iDict.h"
-
-#include <QDebug>
-
+#include <stdio.h>
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)    
@@ -14,7 +12,8 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
     m_dictIndexModel = new DictIndexModel();
     ui->indexListView->setModel(m_dictIndexModel);
-
+    QScrollBar *scrollBar = ui->indexListView->verticalScrollBar();
+    QObject::connect((QObject *)scrollBar, SIGNAL(valueChanged(int)), this, SLOT(onIndexListScrollBarValueChanged(int)));
     m_messager = new QtMessager(this, m_dictIndexModel);
     m_messager->start();
 }
@@ -115,6 +114,14 @@ void MainWindow::onSetLanComboBox(const QString& src, const QString& det, void *
 
     i = ui->detLanComboBox->findText(det);
     ui->detLanComboBox->setCurrentIndex(i);
+}
+
+void MainWindow::onIndexListScrollBarValueChanged(int value)
+{
+    //printf("scroll bar value %d\n", value);
+    g_uiMessageQ.push(MSG_UPDATE_INDEXLIST, value);
+    //int maximum = ui->indexListView->verticalScrollBar()->maximum();
+    //float precent = value/maximum;
 }
 
 void MainWindow::onAppExit()

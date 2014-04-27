@@ -44,15 +44,16 @@ void SysMessager::processMessage()
             break;
         }
         case MSG_SET_SRCLAN: {
-            Application::getRefrence().m_configure->writeSrcLan(msg.strArg1);
+            g_application.m_configure->writeSrcLan(msg.strArg1);
             DictManager::getReference().setSrcLan(msg.strArg1);
             break;
         }
         case MSG_SET_DETLAN: {
-            Application::getRefrence().m_configure->writeDetLan(msg.strArg1);
+            g_application.m_configure->writeDetLan(msg.strArg1);
             DictManager::getReference().setDetLan(msg.strArg1);
             break;
         }
+       
         case MSG_QUIT: {
             abort();
             break;

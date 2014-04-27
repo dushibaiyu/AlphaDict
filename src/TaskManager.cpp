@@ -84,6 +84,7 @@ void TaskManager::addTask(Task *tsk, int delay)
 	MutexLock lock(m_taskQueueLock);
     //printf("{addTask} %d \n", tsk->getInterval());
 	/* Can't add a task repeatly. */
+    printf("{addTask}: %u,%u\n", now, now+delay);
 	if (!IsExistTask(tsk)) {
 		tsk->setStartRunningTime(now+delay);
 	
@@ -92,10 +93,10 @@ void TaskManager::addTask(Task *tsk, int delay)
 		for ( ; iter != m_taskQueue.end(); ++iter) {
 			if ((*iter)->getStartRunningTime() >= tsk->getStartRunningTime()) {
 				m_taskQueue.insert(iter, tsk);
+                m_queueCond.setEvent();
 				return;
 			}
 		}
-
 		m_taskQueue.push_back(tsk);
 		m_queueCond.setEvent();
 	}
@@ -165,6 +166,7 @@ void* schedule(void *owner)
 			if (tmgr->m_curTask != NULL) {         
 			    tmgr->m_taskCond.setEvent();
                 canScheldule = false;
+                printf("curTask != NULL\n");
             }
             /* Do't do sleep in this block, It will delay unlock "m_curTaskLock", 
                so execute thread can't pickup this tadk */
@@ -194,7 +196,7 @@ void* schedule(void *owner)
 		        tsk = tmgr->m_taskQueue.front();
                 start = tsk->getStartRunningTime();
                 if (now >= start) {            
-                    //printf("{schedule} got a job right now (%ld, %ld)\n", now, start);
+                    printf("{schedule} got a job right now (%ld, %ld)\n", now, start);
 		            tmgr->m_taskQueue.pop_front(); /* pick up this task, remove it from queue. */
                     break;
                 }
@@ -204,7 +206,7 @@ void* schedule(void *owner)
              *    - Waitting the front job util timeout.
              */
             int timeout = start - now;
-            printf("schedul timeout:%d, %ld, %ld\n", timeout, start, now);
+            printf("schedul timeout:%d, start:%u, now:%u\n", timeout, start, now);
             int wait_status = tmgr->m_queueCond.waitEvent(timeout);
             if (wait_status == -2) {
                 goto EXIT;
@@ -219,7 +221,7 @@ void* schedule(void *owner)
 			 tmgr->m_curTask = tsk;
 			 tmgr->m_taskCond.setEvent(); /* wake up a exection thread.*/
          }
-         //printf("{schedule} wakeup exection thread\n");
+         printf("{schedule} wakeup exection thread\n");
          pthread_yield();
 		/* Dump */
 		#if 0
@@ -245,19 +247,19 @@ void* execute(void *owner)
 		{
 			MutexLock lock (tmgr->m_curTaskLock);
 			if (tmgr->m_curTask != NULL) {
-                //printf("{execute}: get task\n");
+                printf("{execute}: get task\n");
 				work = tmgr->m_curTask;
 				tmgr->m_curTask = NULL;
 			}
 		}
 
 		if (work == NULL) {
-            //printf("{execute} no work, waitting... \n");
+            printf("{execute} no work, waitting... \n");
             if(tmgr->m_taskCond.waitEvent() == -2)
                 break;
-            //printf("{execute} wakeup\n");
+            printf("{execute} wakeup\n");
         } else {
-            //printf("{execute} get a work to do \n");
+            printf("{execute}: %u: get a work to do \n", Util::getTimeMS());
             if (!work->isAbort()) {
 			    work->doWork();
 				work->m_callback->onTaskDone();

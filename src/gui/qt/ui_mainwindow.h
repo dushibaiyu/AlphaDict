@@ -42,6 +42,10 @@ public:
     QPushButton *queryButton;
     QLabel *label;
     QTextEdit *dictTextEdit;
+    QPushButton *moreButton;
+    QPushButton *netdictButton;
+    QPushButton *saveButton;
+    QPushButton *vocabularyButton;
     QWidget *toolTab;
     QMenuBar *menuBar;
     QToolBar *mainToolBar;
@@ -61,7 +65,7 @@ public:
         centralWidget->setObjectName(QStringLiteral("centralWidget"));
         tabWidget = new QTabWidget(centralWidget);
         tabWidget->setObjectName(QStringLiteral("tabWidget"));
-        tabWidget->setGeometry(QRect(10, 0, 711, 481));
+        tabWidget->setGeometry(QRect(1, 0, 721, 481));
         QSizePolicy sizePolicy1(QSizePolicy::Maximum, QSizePolicy::Maximum);
         sizePolicy1.setHorizontalStretch(0);
         sizePolicy1.setVerticalStretch(0);
@@ -75,27 +79,42 @@ public:
         dictTab->setObjectName(QStringLiteral("dictTab"));
         indexListView = new QListView(dictTab);
         indexListView->setObjectName(QStringLiteral("indexListView"));
-        indexListView->setGeometry(QRect(0, 0, 141, 451));
+        indexListView->setGeometry(QRect(-1, 0, 161, 451));
+        indexListView->setAcceptDrops(false);
+        indexListView->setEditTriggers(QAbstractItemView::NoEditTriggers);
         inputLineEdit = new QLineEdit(dictTab);
         inputLineEdit->setObjectName(QStringLiteral("inputLineEdit"));
-        inputLineEdit->setGeometry(QRect(440, 30, 181, 31));
+        inputLineEdit->setGeometry(QRect(440, 14, 181, 31));
         inputLineEdit->setReadOnly(false);
         srcLanComboBox = new QComboBox(dictTab);
         srcLanComboBox->setObjectName(QStringLiteral("srcLanComboBox"));
-        srcLanComboBox->setGeometry(QRect(160, 30, 111, 31));
+        srcLanComboBox->setGeometry(QRect(160, 14, 111, 31));
         detLanComboBox = new QComboBox(dictTab);
         detLanComboBox->setObjectName(QStringLiteral("detLanComboBox"));
-        detLanComboBox->setGeometry(QRect(320, 30, 111, 31));
+        detLanComboBox->setGeometry(QRect(320, 14, 111, 31));
         queryButton = new QPushButton(dictTab);
         queryButton->setObjectName(QStringLiteral("queryButton"));
-        queryButton->setGeometry(QRect(628, 30, 61, 31));
+        queryButton->setGeometry(QRect(628, 14, 61, 31));
         label = new QLabel(dictTab);
         label->setObjectName(QStringLiteral("label"));
-        label->setGeometry(QRect(280, 37, 31, 17));
+        label->setGeometry(QRect(280, 21, 31, 17));
         dictTextEdit = new QTextEdit(dictTab);
         dictTextEdit->setObjectName(QStringLiteral("dictTextEdit"));
-        dictTextEdit->setGeometry(QRect(160, 80, 531, 371));
+        dictTextEdit->setGeometry(QRect(180, 60, 511, 340));
+        dictTextEdit->setAcceptDrops(false);
         dictTextEdit->setReadOnly(true);
+        moreButton = new QPushButton(dictTab);
+        moreButton->setObjectName(QStringLiteral("moreButton"));
+        moreButton->setGeometry(QRect(620, 412, 71, 31));
+        netdictButton = new QPushButton(dictTab);
+        netdictButton->setObjectName(QStringLiteral("netdictButton"));
+        netdictButton->setGeometry(QRect(511, 412, 71, 31));
+        saveButton = new QPushButton(dictTab);
+        saveButton->setObjectName(QStringLiteral("saveButton"));
+        saveButton->setGeometry(QRect(400, 412, 71, 31));
+        vocabularyButton = new QPushButton(dictTab);
+        vocabularyButton->setObjectName(QStringLiteral("vocabularyButton"));
+        vocabularyButton->setGeometry(QRect(290, 411, 71, 31));
         tabWidget->addTab(dictTab, QString());
         toolTab = new QWidget();
         toolTab->setObjectName(QStringLiteral("toolTab"));
@@ -123,11 +142,18 @@ public:
     void retranslateUi(QMainWindow *MainWindow)
     {
         MainWindow->setWindowTitle(QApplication::translate("MainWindow", "MainWindow", 0));
+#ifndef QT_NO_TOOLTIP
+        indexListView->setToolTip(QString());
+#endif // QT_NO_TOOLTIP
 #ifndef QT_NO_ACCESSIBILITY
         indexListView->setAccessibleName(QString());
 #endif // QT_NO_ACCESSIBILITY
         queryButton->setText(QApplication::translate("MainWindow", "Query", 0));
         label->setText(QApplication::translate("MainWindow", "----->", 0));
+        moreButton->setText(QApplication::translate("MainWindow", "more", 0));
+        netdictButton->setText(QApplication::translate("MainWindow", "net dict", 0));
+        saveButton->setText(QApplication::translate("MainWindow", "save", 0));
+        vocabularyButton->setText(QApplication::translate("MainWindow", "vocabulary", 0));
         tabWidget->setTabText(tabWidget->indexOf(dictTab), QApplication::translate("MainWindow", "dictionary", 0));
         tabWidget->setTabText(tabWidget->indexOf(toolTab), QApplication::translate("MainWindow", "Tool | setting", 0));
     } // retranslateUi

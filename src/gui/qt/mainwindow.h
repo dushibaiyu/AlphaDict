@@ -39,6 +39,7 @@ private slots:
     void on_indexListView_clicked(const QModelIndex &index);
 
     void onAppExit();
+    void onIndexListScrollBarValueChanged(int value);
 
 private:
     QString m_input;

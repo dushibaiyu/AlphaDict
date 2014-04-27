@@ -20,7 +20,7 @@
 QT_BEGIN_MOC_NAMESPACE
 struct qt_meta_stringdata_DictIndexModel_t {
     QByteArrayData data[4];
-    char stringdata[32];
+    char stringdata[38];
 };
 #define QT_MOC_LITERAL(idx, ofs, len) \
     Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
@@ -32,9 +32,9 @@ static const qt_meta_stringdata_DictIndexModel_t qt_meta_stringdata_DictIndexMod
 QT_MOC_LITERAL(0, 0, 14),
 QT_MOC_LITERAL(1, 15, 12),
 QT_MOC_LITERAL(2, 28, 0),
-QT_MOC_LITERAL(3, 29, 1)
+QT_MOC_LITERAL(3, 29, 7)
     },
-    "DictIndexModel\0onUpdataList\0\0v\0"
+    "DictIndexModel\0onUpdataList\0\0curitem\0"
 };
 #undef QT_MOC_LITERAL
 
@@ -55,7 +55,7 @@ static const uint qt_meta_data_DictIndexModel[] = {
        1,    1,   19,    2, 0x08,
 
  // slots: parameters
-    QMetaType::Void, QMetaType::VoidStar,    3,
+    QMetaType::Void, QMetaType::Int,    3,
 
        0        // eod
 };
@@ -65,7 +65,7 @@ void DictIndexModel::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _
     if (_c == QMetaObject::InvokeMetaMethod) {
         DictIndexModel *_t = static_cast<DictIndexModel *>(_o);
         switch (_id) {
-        case 0: _t->onUpdataList((*reinterpret_cast< void*(*)>(_a[1]))); break;
+        case 0: _t->onUpdataList((*reinterpret_cast< int(*)>(_a[1]))); break;
         default: ;
         }
     }

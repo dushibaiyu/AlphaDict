@@ -17,7 +17,7 @@ int main(int argc, char* argv[])
 {
 	setlocale(LC_ALL, "C.UTF-8");
     Util::getTimeMS(); // start to timing.
-    Application::getRefrence().initialization();
+    g_application.initialization();
 
 #ifdef _QT
     QApplication a(argc, argv);

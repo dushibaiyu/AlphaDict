@@ -13,12 +13,12 @@ public:
     Aldict() {}
     ~Aldict();
 	virtual iDictItem lookup(const string& word);
-	virtual IndexList* getIndexList();
+	virtual int getIndexList(IndexList& indexList, int start, int end);
 	virtual iDictItem onClick(int index, iIndexItem* item);
-    virtual const string identifier();
+    virtual string identifier();
     virtual bool support(const string& dictname);
-    virtual bool canLookup(const string& srcLan, const string& detLan);
     virtual bool load(const string& dictname);
+    virtual void getLanguage(string& from, string& to);
 private:
 	AldictDocument m_doc;
 };

@@ -18,11 +18,11 @@
 enum {
     MSG_DICT_QUERY = 0,
     MSG_DICT_INDEX_QUERY,
-    MSG_SET_INDEXLIST, /* (-1[@1] , pArg1[@2])  */
 	MSG_SET_DICTITEM,  /* (-1[@1], pArg1[@3]):  */
     MSG_SET_LANLIST,   /* (strArg1, strArg1, pArg1[@2])  */
     MSG_SET_SRCLAN,    /* (strArg1) */
     MSG_SET_DETLAN,    /* (strArg1) */
+    MSG_UPDATE_INDEXLIST, /*(iArg1) */
     MSG_QUIT,
 };
 

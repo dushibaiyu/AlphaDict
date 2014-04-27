@@ -32,7 +32,6 @@ class Application: public TaskCallBack
 {
 friend class SlowJob;
 public:
-    static Application&  getRefrence();
     Application();
 	virtual ~Application();
 
@@ -43,6 +42,7 @@ public:
 	virtual void onTaskDone();
 
     Configure* m_configure;
+
 private:
     void slowJob(void);
 
@@ -50,4 +50,12 @@ private:
 	bool m_init;
 };
 
+#undef EXTERN
+#ifdef _APPLICATION_CPP_
+#define EXTERN
+#else
+#define EXTERN extern
+#endif
+
+EXTERN Application g_application;
 #endif

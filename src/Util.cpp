@@ -19,11 +19,12 @@ unsigned int Util::getTimeMS()
 	struct timespec ts;
 
     clock_gettime(CLOCK_MONOTONIC, &ts);
-	now_mstime = (ts.tv_sec * 1000) + (ts.tv_nsec / 1000);
+	now_mstime = (ts.tv_sec * 1000) + (ts.tv_nsec / 1000000);
 	if (start_mstime == 0) {
 		start_mstime = now_mstime;
 	}
-    //printf("{getTimeMS} (%ld, %ld) --> (%ld, %ld)\n", ts.tv_sec, ts.tv_nsec, now_mstime, start_mstime);
+    /*printf("{getTimeMS} (%lu, %lu) --> (%lu, %lu), %u\n", 
+       ts.tv_sec, ts.tv_nsec, now_mstime, start_mstime, now_mstime - start_mstime);*/
 	return(now_mstime - start_mstime);
 }
 
@@ -41,7 +42,17 @@ wchar_t Util::mbrtowc_r(char** mb)
 	}
 }
 
+int Util::wcrtomb_r(char* s, wchar_t *wc)
+{
+    int nbytes = wcrtomb(s, *wc, NULL);
+    if (nbytes == (size_t) -1)
+        /* Error in the conversion. */
+        return -1;
+    return nbytes;
+}
+
 /* This piece of code comes from an example of mbrtowc function of GNU libc. */
+// Caller should release pointer 'wchar_t*'.
 wchar_t* Util::mbstowcs(const char *mb)
 {
 	size_t len = strlen(mb);
@@ -56,6 +67,7 @@ wchar_t* Util::mbstowcs(const char *mb)
 	{
 		if (nbytes >= (size_t) -2) {
 		    g_log.e("mbstowcs: invalid input string\n");
+            free(result);
 			return NULL;
 		}
 		*wcp++ = tmp[0];
@@ -63,6 +75,37 @@ wchar_t* Util::mbstowcs(const char *mb)
 		mb += nbytes;
 	}
 	return result;
+}
+
+// Caller should release pointer 'wchar_t*'
+wchar_t* Util::mbsrtowcs_r(const char *mb)
+{
+    size_t len = strlen(mb);
+    wchar_t *result = (wchar_t *)malloc((len+1)*sizeof(wchar_t));
+
+    size_t ret = mbsrtowcs(result, &mb, len, NULL);
+    if (ret == (size_t)-1) {
+        free(result);
+        return NULL;
+    }
+
+    return result;
+}
+
+// Caller should release pointer char*
+char* Util::wcsrtombs_r(const wchar_t *wc)
+{
+    size_t len = wcslen(wc);
+    len = len*sizeof(wchar_t) + 1;
+    char *result = (char *)malloc(len);
+
+    size_t ret = wcsrtombs(result, &wc, len, NULL);
+    if (ret == (size_t)-1) {
+        free(result);
+        return NULL;
+    }
+
+    return result;
 }
 
 bool Util::isDir(const string& dir)
