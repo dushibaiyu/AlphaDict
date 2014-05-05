@@ -62,4 +62,5 @@ void SysMessager::processMessage()
         default:
             break;
     }
+	printf("Message done\n");
 }

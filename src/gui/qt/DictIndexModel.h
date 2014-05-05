@@ -3,6 +3,7 @@
 
 #include "dict/iDict.h"
 #include "MutexLock.h"
+#include "dict/aldict/aldict_inner.h"
 
 #include <QAbstractListModel>
 
@@ -20,12 +21,14 @@ public:
                                 int role = Qt::DisplayRole) const;
     iIndexItem* item(int row);
 
-private slots:
-    void onUpdataList(int curitem);
+public slots:
+    void onResetIndexList();
+    QModelIndex updateIndexList(int pg);
 
 private:
     IndexList  *m_indexList;
-    int m_indexListStart;
+    int m_indexStart;
+	int m_indexEnd;
     MutexCriticalSection m_cs;
 };
 

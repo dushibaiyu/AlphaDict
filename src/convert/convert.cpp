@@ -48,6 +48,7 @@ static void write_charindex(ktree::tree_node<aldict_charindex>::treeNodePtr pare
 static wchar_t mbrtowc_nextwc(char** strmb);
 static void merge_file(FILE *det, FILE *src);
 static off_t check_block_bound(off_t pos, int nbytes);
+static char* wcsrtombs_r(const wchar_t *wc, size_t *mb_len);
 
 int main(int argc, char* argv[])
 {
@@ -256,7 +257,7 @@ static void make_dict(const string& xmlpath, const string& dictpath)
 	write_charindex(rootNode, dictfile);
 
 	/*-@ Stage 5: Merge temple files */
-	ald_write_u32(header.loc_chrindex, INDEX_BLOCK_NR);
+	header.loc_chrindex[0] = INDEX_BLOCK_NR;
 
 	fseek(dictfile, 0, SEEK_END);
 	int bnr = ALD_BLOCK_NR(ftello(dictfile)) + 1;
@@ -437,26 +438,36 @@ static void write_stringindex(ktree::tree_node<aldict_charindex>::treeNodePtr pa
 		} else {
 			printf(
 			"WARRING: length of string index greatter then STRINX_LEN_MAX,please check function is_in_stringindex\n");
+            index[STRINX_LEN_MAX-1] = wchr;
 		}
 
 		if (ald_read_u32(charIndex.location) != ALD_INVALID_ADDR) {
 			int nbytes_strinx = sizeof( struct aldict_stringindex)-1;
-			int nbytes_str = 4*(len_inx+1);
-			nbytes_strinx += nbytes_str;
-			 struct aldict_stringindex *strinx = ( struct aldict_stringindex *)malloc(nbytes_strinx);
-			memcpy(strinx->str, index, nbytes_str);
-			memcpy(strinx->location, charIndex.location, 4);
-			strinx->len_str[0] = len_inx+1; /* How many char */
-
-			off_t offset = check_block_bound(ftello(file), nbytes_strinx);
-			fseek(file, offset, SEEK_CUR);
-            if ((*total) == 0) {
-                *start = ftello(file);
+            size_t  nbytes_str=0;
+            index[len_inx+1] = L'\0';
+            char* mbindex = wcsrtombs_r(index, &nbytes_str);
+            if (mbindex != NULL) {
+                if (nbytes_str == (size_t) -1) {
+                    nbytes_str = strlen(mbindex);
+                    printf("WARRING: part of index was converted to utf-8, length(%lu)\n", nbytes_str);
+                }
+                //printf("%s-->%lu\n", mbindex, nbytes_str);
+                nbytes_strinx += nbytes_str;
+			    struct aldict_stringindex *strinx = ( struct aldict_stringindex *)malloc(nbytes_strinx);
+			    memcpy(strinx->str, mbindex, nbytes_str);
+			    memcpy(strinx->location, charIndex.location, 4);
+			    strinx->len_str[0] = nbytes_str;
+                
+			    off_t offset = check_block_bound(ftello(file), nbytes_strinx);
+			    fseek(file, offset, SEEK_CUR);
+                if ((*total) == 0) {
+                    *start = ftello(file);
+                }
+			    fwrite(strinx, nbytes_strinx, 1, file);
+			    free(strinx);
+                free(mbindex);
+			    (*total) += 1;
             }
-			fwrite(strinx, nbytes_strinx, 1, file);
-			free(strinx);
-
-			(*total) += 1;
 		}
 		write_stringindex((*parent)[i], len_inx+1, total, start, file);
 	}
@@ -555,6 +566,25 @@ static wchar_t mbrtowc_nextwc(char** strmb)
 	}
 }
 
+static char* wcsrtombs_r(const wchar_t *wc, size_t *mb_len)
+{
+    size_t len = wcslen(wc);
+    len = len*sizeof(wchar_t) + 1;
+    char *result = (char *)malloc(len);
+    memset(result, '\0', len);
+    *mb_len = wcsrtombs(result, &wc, len, NULL);
+    if (*mb_len == (size_t)-1) {
+        if (result[0] == '\0') {
+            free(result);
+            return NULL;
+        } else {
+            printf("{wcsrtombs_r}: (%s), encounter a invalid wide character(0x%x)\n", result, *wc);
+        }
+    }
+
+    return result;
+}
+
 static void merge_file(FILE *det, FILE *src)
 {
 	unsigned char buf[2048];
@@ -569,7 +599,8 @@ static void merge_file(FILE *det, FILE *src)
 static off_t check_block_bound(off_t pos, int nbytes)
 {
 	off_t remain = ALD_BLOCK - pos%ALD_BLOCK;
-	if (nbytes > remain)
+	if (nbytes > remain){
 		return remain; /* seek to next block */
+    }
 	return 0; /* don't seek */
 }

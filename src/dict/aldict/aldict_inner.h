@@ -24,11 +24,11 @@ struct aldict_header {
 	u8 d_version    [ BP(68, 69)   ];
 	u8 d_identi	    [ BP(70, 129)  ];
 	u8 d_entries	[ BP(130, 133) ];
-	u8 loc_chrindex	[ BP(134, 137) ];
-	u8 loc_strindex [ BP(138, 141) ];
-	u8 loc_data     [ BP(142, 145) ];
-	u8 src_lan      [ BP(146, 160) ];
-	u8 det_lan      [ BP(160, 175) ];
+	u8 loc_chrindex	[ BP(134, 134) ];
+	u8 loc_strindex [ BP(135, 138) ];
+	u8 loc_data     [ BP(139, 142) ];
+	u8 src_lan      [ BP(143, 157) ];
+	u8 det_lan      [ BP(158, 172) ];
 };
 
 struct aldict_charindex {
@@ -39,7 +39,7 @@ struct aldict_charindex {
 
 struct aldict_stringindex {
 	u8 location     [ BP(1, 4) ];
-	u8 len_str      [ BP(5, 5) ]; // how many wchars
+	u8 len_str      [ BP(5, 5) ];
   	u8 str          [1];
 };
 

@@ -150,8 +150,26 @@ void Configure::loadLanguage(string& path)
     }
 }
 
-void Configure::moveDictItem(int item, bool down)
+void Configure::moveDictItem(int index, bool down)
 {
+        struct DictNode tempNode = m_dictNodes[index];
+        int newIndex = down ? index + 1 : index - 1;
+        m_dictNodes[index] = m_dictNodes[newIndex];
+        m_dictNodes[newIndex] = tempNode;
+        writeDictItem(index);
+        writeDictItem(newIndex);
+}
+
+void Configure::enableDict(int index, bool en)
+{
+    if (m_dictNodes[index].en != en) {
+        m_dictNodes[index].en = en;
+        string ndname = dictItemName(index);
+        XMLElement* e = XMLHandle(m_doc.RootElement()).FirstChildElement("dict").
+                        FirstChildElement(ndname.c_str()).ToElement();
+        e->SetAttribute("en",  en);
+        m_dirty = true;
+    }
 }
 
 void Configure::writeDictItem(int item)
@@ -173,7 +191,6 @@ void Configure::writeDictItem(int item)
     e->SetAttribute("detlan", m_dictNodes[item].detlan.c_str());
     e->SetAttribute("path",   m_dictNodes[item].path.c_str());
     e->SetAttribute("en",     m_dictNodes[item].en);
-
 
     if (add) {
         dictElement->InsertEndChild(e);  

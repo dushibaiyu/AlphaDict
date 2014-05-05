@@ -31,11 +31,10 @@ void QtMessager::doWork()
         if (g_uiMessageQ.pop(msg)) {
             printf("{QtMessager} MSGID:%d\n", msg.id);
 		    switch (msg.id) {
-                case MSG_UPDATE_INDEXLIST:{
+                case MSG_RESET_INDEXLIST:{
                     QMetaObject::invokeMethod(m_indexListModel,
-                                              "onUpdataList",
-                                              Qt::QueuedConnection,
-                                              Q_ARG(int, msg.iArg1));
+                                              "onResetIndexList",
+                                              Qt::QueuedConnection);
                 }
                 break;
              

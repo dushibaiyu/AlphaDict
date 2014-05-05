@@ -29,7 +29,8 @@ public:
     void initialization();
     void scanDictDir();
 
-    void moveDictItem(int item, bool down=true);
+    void moveDictItem(int index, bool down=true);
+    void enableDict(int index, bool en=true);
     void writeDictItem(int item);
     void writeSrcLan(const string& lan);
     void writeDetLan(const string& lan);

@@ -19,7 +19,7 @@ public:
     struct aldict_dataitem dataitem(address_t addr);
 
 	void writeToXml(const string& path);
-	int  getIndexList(IndexList& indexList, int start, int end);    
+	int  getIndexList(IndexList& indexList, int start, int end);
     bool support(const string& dictname);
 
 	struct aldict_header m_header;
@@ -32,8 +32,8 @@ private:
 
 	bool readHeader();
 	void readChrIndex();
-	address_t lookup(wchar_t *wstr, tree_node<aldict_charindex>::treeNodePtr parent);
-	address_t lookup(wchar_t* key, address_t off, int len);
+	address_t lookup(char *strkey, tree_node<aldict_charindex>::treeNodePtr parent);
+	address_t lookup(char *strkey, address_t off, int len);
     void* getBlock(int blk);
 
 	kary_tree<aldict_charindex> *m_indexTree;

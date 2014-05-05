@@ -19,8 +19,8 @@
 
 QT_BEGIN_MOC_NAMESPACE
 struct qt_meta_stringdata_MainWindow_t {
-    QByteArrayData data[18];
-    char stringdata[299];
+    QByteArrayData data[28];
+    char stringdata[559];
 };
 #define QT_MOC_LITERAL(idx, ofs, len) \
     Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
@@ -44,9 +44,19 @@ QT_MOC_LITERAL(11, 166, 28),
 QT_MOC_LITERAL(12, 195, 22),
 QT_MOC_LITERAL(13, 218, 24),
 QT_MOC_LITERAL(14, 243, 5),
-QT_MOC_LITERAL(15, 249, 9),
-QT_MOC_LITERAL(16, 259, 32),
-QT_MOC_LITERAL(17, 292, 5)
+QT_MOC_LITERAL(15, 249, 28),
+QT_MOC_LITERAL(16, 278, 28),
+QT_MOC_LITERAL(17, 307, 26),
+QT_MOC_LITERAL(18, 334, 26),
+QT_MOC_LITERAL(19, 361, 29),
+QT_MOC_LITERAL(20, 391, 16),
+QT_MOC_LITERAL(21, 408, 4),
+QT_MOC_LITERAL(22, 413, 27),
+QT_MOC_LITERAL(23, 441, 29),
+QT_MOC_LITERAL(24, 471, 9),
+QT_MOC_LITERAL(25, 481, 25),
+QT_MOC_LITERAL(26, 507, 24),
+QT_MOC_LITERAL(27, 532, 25)
     },
     "MainWindow\0onUpdateText\0\0v\0onSetLanComboBox\0"
     "src\0det\0on_srcLanComboBox_currentIndexChanged\0"
@@ -54,8 +64,16 @@ QT_MOC_LITERAL(17, 292, 5)
     "on_inputLineEdit_editingFinished\0"
     "on_inputLineEdit_textChanged\0"
     "on_queryButton_clicked\0on_indexListView_clicked\0"
-    "index\0onAppExit\0onIndexListScrollBarValueChanged\0"
-    "value\0"
+    "index\0on_pgdownToolButton1_clicked\0"
+    "on_pgdownToolButton2_clicked\0"
+    "on_pgupToolButton1_clicked\0"
+    "on_pgupToolButton2_clicked\0"
+    "on_dictListWidget_itemChanged\0"
+    "QListWidgetItem*\0item\0on_dictUpToolButton_clicked\0"
+    "on_dictDownToolButton_clicked\0onAppExit\0"
+    "on_dictListWidget_clicked\0"
+    "onActionSettingPageAdded\0"
+    "onActionVcbularyPageAdded\0"
 };
 #undef QT_MOC_LITERAL
 
@@ -65,7 +83,7 @@ static const uint qt_meta_data_MainWindow[] = {
        7,       // revision
        0,       // classname
        0,    0, // classinfo
-      10,   14, // methods
+      19,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
@@ -73,16 +91,25 @@ static const uint qt_meta_data_MainWindow[] = {
        0,       // signalCount
 
  // slots: name, argc, parameters, tag, flags
-       1,    1,   64,    2, 0x0a,
-       4,    3,   67,    2, 0x0a,
-       7,    1,   74,    2, 0x08,
-       9,    1,   77,    2, 0x08,
-      10,    0,   80,    2, 0x08,
-      11,    1,   81,    2, 0x08,
-      12,    0,   84,    2, 0x08,
-      13,    1,   85,    2, 0x08,
-      15,    0,   88,    2, 0x08,
-      16,    1,   89,    2, 0x08,
+       1,    1,  109,    2, 0x0a,
+       4,    3,  112,    2, 0x0a,
+       7,    1,  119,    2, 0x08,
+       9,    1,  122,    2, 0x08,
+      10,    0,  125,    2, 0x08,
+      11,    1,  126,    2, 0x08,
+      12,    0,  129,    2, 0x08,
+      13,    1,  130,    2, 0x08,
+      15,    0,  133,    2, 0x08,
+      16,    0,  134,    2, 0x08,
+      17,    0,  135,    2, 0x08,
+      18,    0,  136,    2, 0x08,
+      19,    1,  137,    2, 0x08,
+      22,    0,  140,    2, 0x08,
+      23,    0,  141,    2, 0x08,
+      24,    0,  142,    2, 0x08,
+      25,    1,  143,    2, 0x08,
+      26,    0,  146,    2, 0x08,
+      27,    0,  147,    2, 0x08,
 
  // slots: parameters
     QMetaType::Void, QMetaType::VoidStar,    3,
@@ -94,7 +121,16 @@ static const uint qt_meta_data_MainWindow[] = {
     QMetaType::Void,
     QMetaType::Void, QMetaType::QModelIndex,   14,
     QMetaType::Void,
-    QMetaType::Void, QMetaType::Int,   17,
+    QMetaType::Void,
+    QMetaType::Void,
+    QMetaType::Void,
+    QMetaType::Void, 0x80000000 | 20,   21,
+    QMetaType::Void,
+    QMetaType::Void,
+    QMetaType::Void,
+    QMetaType::Void, QMetaType::QModelIndex,   14,
+    QMetaType::Void,
+    QMetaType::Void,
 
        0        // eod
 };
@@ -112,8 +148,17 @@ void MainWindow::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, 
         case 5: _t->on_inputLineEdit_textChanged((*reinterpret_cast< const QString(*)>(_a[1]))); break;
         case 6: _t->on_queryButton_clicked(); break;
         case 7: _t->on_indexListView_clicked((*reinterpret_cast< const QModelIndex(*)>(_a[1]))); break;
-        case 8: _t->onAppExit(); break;
-        case 9: _t->onIndexListScrollBarValueChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 8: _t->on_pgdownToolButton1_clicked(); break;
+        case 9: _t->on_pgdownToolButton2_clicked(); break;
+        case 10: _t->on_pgupToolButton1_clicked(); break;
+        case 11: _t->on_pgupToolButton2_clicked(); break;
+        case 12: _t->on_dictListWidget_itemChanged((*reinterpret_cast< QListWidgetItem*(*)>(_a[1]))); break;
+        case 13: _t->on_dictUpToolButton_clicked(); break;
+        case 14: _t->on_dictDownToolButton_clicked(); break;
+        case 15: _t->onAppExit(); break;
+        case 16: _t->on_dictListWidget_clicked((*reinterpret_cast< const QModelIndex(*)>(_a[1]))); break;
+        case 17: _t->onActionSettingPageAdded(); break;
+        case 18: _t->onActionVcbularyPageAdded(); break;
         default: ;
         }
     }
@@ -144,13 +189,13 @@ int MainWindow::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 10)
+        if (_id < 19)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 10;
+        _id -= 19;
     } else if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
-        if (_id < 10)
+        if (_id < 19)
             *reinterpret_cast<int*>(_a[0]) = -1;
-        _id -= 10;
+        _id -= 19;
     }
     return _id;
 }

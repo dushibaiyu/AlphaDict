@@ -3,6 +3,7 @@
 
 #include "TaskManager.h"
 #include "SysMessager.h"
+#include "Configure.h"
 
 using namespace std;
 

@@ -2,13 +2,14 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-
+#include <QModelIndexList>
 namespace Ui {
 class MainWindow;
 }
 
 class QtMessager;
 class DictIndexModel;
+class QListWidgetItem;
 
 class MainWindow : public QMainWindow
 {
@@ -38,8 +39,26 @@ private slots:
 
     void on_indexListView_clicked(const QModelIndex &index);
 
+    void on_pgdownToolButton1_clicked();
+
+    void on_pgdownToolButton2_clicked();
+
+    void on_pgupToolButton1_clicked();
+
+    void on_pgupToolButton2_clicked();
+
+    void on_dictListWidget_itemChanged(QListWidgetItem *item);
+
+    void on_dictUpToolButton_clicked();
+
+    void on_dictDownToolButton_clicked();
+
     void onAppExit();
-    void onIndexListScrollBarValueChanged(int value);
+
+    void on_dictListWidget_clicked(const QModelIndex &index);
+
+    void onActionSettingPageAdded();
+    void onActionVcbularyPageAdded();
 
 private:
     QString m_input;
@@ -47,6 +66,8 @@ private:
 
     Ui::MainWindow *ui;
     void (*onSysExit)();
+
+    bool m_initSettingPage;
 };
 
 #endif // MAINWINDOW_H

@@ -35,7 +35,7 @@ wchar_t Util::mbrtowc_r(char** mb)
 	size_t len = strlen(*mb);
 	size_t nbytes = mbrtowc(wctmp, *mb, len, NULL);
 	if (nbytes > 0) {
-		if (nbytes > (size_t) - 2)
+		if (nbytes > (size_t)-2)
 			return 0;
 		*mb += nbytes;
 		return wctmp[0];
@@ -81,8 +81,9 @@ wchar_t* Util::mbstowcs(const char *mb)
 wchar_t* Util::mbsrtowcs_r(const char *mb)
 {
     size_t len = strlen(mb);
-    wchar_t *result = (wchar_t *)malloc((len+1)*sizeof(wchar_t));
-
+    len = (len+1)*sizeof(wchar_t);
+    wchar_t *result = (wchar_t *)malloc(len);
+    memset(result, L'\0', len);
     size_t ret = mbsrtowcs(result, &mb, len, NULL);
     if (ret == (size_t)-1) {
         free(result);
@@ -98,13 +99,17 @@ char* Util::wcsrtombs_r(const wchar_t *wc)
     size_t len = wcslen(wc);
     len = len*sizeof(wchar_t) + 1;
     char *result = (char *)malloc(len);
-
+    memset(result, '\0', len);
     size_t ret = wcsrtombs(result, &wc, len, NULL);
     if (ret == (size_t)-1) {
-        free(result);
-        return NULL;
+        if (result[0] == '\0') {
+            free(result);
+            g_log.e("{wcsrtombs_r}: invalid wc string\n");
+            return NULL;
+        } else {
+            g_log.w("{wcsrtombs_r}: (%s), encounter a invalid wide character(0x%x)\n", result, *wc);
+        }
     }
-
     return result;
 }
 

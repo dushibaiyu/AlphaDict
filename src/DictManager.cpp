@@ -34,7 +34,7 @@ void LookupTask::abort()
 void LoadDictTask::doWork()
 {
     DictManager::getReference().loadDict();
-    g_uiMessageQ.push(MSG_UPDATE_INDEXLIST, 0);
+    g_uiMessageQ.push(MSG_RESET_INDEXLIST);
 }
 
 DictManager& DictManager::getReference()
@@ -123,7 +123,7 @@ void DictManager::setSrcLan(const string& lan)
 {    
     if (g_application.m_configure->m_srcLan != lan) {
         g_application.m_configure->m_srcLan = lan;
-        m_bReload = true;
+        //m_bReload = true;
     }
 }
 
@@ -131,7 +131,7 @@ void DictManager::setDetLan(const string& lan)
 {
     if (g_application.m_configure->m_detLan != lan) {
         g_application.m_configure->m_detLan = lan;
-        m_bReload = true;
+        //m_bReload = true;
     }
 }
 
@@ -143,7 +143,7 @@ void DictManager::lookup(const string& input)
         m_bReload = false;
         loadDict();
         m_indexListStart = -1;        
-        g_uiMessageQ.push(MSG_UPDATE_INDEXLIST, 0);
+        g_uiMessageQ.push(MSG_RESET_INDEXLIST);
     }
 
     m_input = input;

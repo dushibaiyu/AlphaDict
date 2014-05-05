@@ -22,7 +22,7 @@ enum {
     MSG_SET_LANLIST,   /* (strArg1, strArg1, pArg1[@2])  */
     MSG_SET_SRCLAN,    /* (strArg1) */
     MSG_SET_DETLAN,    /* (strArg1) */
-    MSG_UPDATE_INDEXLIST, /*(iArg1) */
+    MSG_RESET_INDEXLIST, /*  */
     MSG_QUIT,
 };
 

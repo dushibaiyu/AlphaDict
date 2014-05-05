@@ -4,7 +4,6 @@
 #include "TaskManager.h"
 #include "SysMessager.h"
 #include "Util.h"
-#include "Configure.h"
 #include "Application.h"
 #include "alphadict.h"
 #include "config.h"

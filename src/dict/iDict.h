@@ -11,18 +11,15 @@ using namespace std;
 
 class iIndexItem {
 public:
-    iIndexItem():index(NULL),inxlen(0),addr(0),opaque(NULL)
+    iIndexItem():index(""),addr(0),opaque(NULL)
 	{
 	}
     ~iIndexItem()
     {
-        if (index)
-	        free(index);
         if (opaque)
 		    free(opaque);
 	}
-	wchar_t *index;
-	int inxlen;
+	string index; /* utf-8 bytes */
     address_t addr;
 	void *opaque;
 };
@@ -37,7 +34,7 @@ public:
     }
     ~iDictItem(){}
 
-    std::string dictIdentifier;
+    std::string dictIdentifier;  /* utf-8 bytes */
 	std::string phonetic; /* utf-8 bytes */
 	std::string expl;     /* utf-8 bytes */
 	address_t addr;
@@ -51,6 +48,8 @@ public:
     /* Lookup a word or phrase */
 	virtual iDictItem lookup(const string& word) = 0;
 
+	virtual int indexListSize() { return 0; }
+
     /* Including 'start' but not incluing 'end', start from 0 */
 	virtual int getIndexList(IndexList & indexList, int start, int end) = 0;
 
@@ -58,13 +57,15 @@ public:
 	virtual iDictItem  onClick(int index, iIndexItem* item) = 0;
 
     /* Identify the unique dict class name */
-    virtual std::string identifier() = 0;
+    virtual string identifier() = 0;
+
+    virtual void summary(string& text) { text = "no summary"; }
 
     /* Check if a dictionary is supported by this dict class  */
     virtual bool support(const string& dictname) = 0;
 
     /* 'any' means the dictionary don't specify it */
-    virtual void getLanguage(string& from, string& to) = 0;
+    virtual void getLanguage(string& from, string& to) { from = "any"; to = "any"; };
 };
 
 #endif
