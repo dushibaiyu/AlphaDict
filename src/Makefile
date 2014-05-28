@@ -26,6 +26,7 @@ SRCS_ALPHADICT += main.cpp \
              TaskManager.cpp \
              DictManager.cpp \
              Configure.cpp \
+             VocabularyBook.cpp \
              Application.cpp \
              $(SRCS_DICT-yes) \
 	         $(SRCS_GUI-yes) \

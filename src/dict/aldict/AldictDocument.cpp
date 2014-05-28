@@ -55,7 +55,7 @@ bool AldictDocument::loadDict(const std::string& dictpath)
 
 bool AldictDocument::readHeader()
 {
-	ReadFile read;
+	util::ReadFile read;
 	size_t size = read(m_dictFile, &m_header, sizeof(struct aldict_header));
     if (size < sizeof(struct aldict_header))
         return false;
@@ -72,8 +72,8 @@ bool AldictDocument::readHeader()
 
 void AldictDocument::readChrIndex()
 {
-	ReadFile read;
-	Malloc maclloc_t;
+	util::ReadFile read;
+	util::Malloc maclloc_t;
 	address_t len = (m_strIndexLoc - m_chrIndexLoc)*ALD_BLOCK;
 	void* chrblock = maclloc_t(len);
 
@@ -84,7 +84,7 @@ void AldictDocument::readChrIndex()
 	struct aldict_charindex rootIndex;
 	rootIndex = *((struct aldict_charindex*)chrblock);
     m_indexTree = new kary_tree2<aldict_charindex>(rootIndex);
-    if (len <= MEM_CHARINX_MAX) {
+    if (true/*len <= MEM_CHARINX_MAX*/) {
 	    loadIndexTree(m_indexTree->root(), chrblock, len);
     } else {
         // Todo: Loading a part of index character.
@@ -304,7 +304,7 @@ struct aldict_dataitem AldictDocument::dataitem(address_t loc)
     struct aldict_dataitem dataItem;
 	memset(&dataItem, 0, sizeof(struct aldict_dataitem));
 	if (loc != ALD_INVALID_ADDR) {
-		ReadFile read;
+		util::ReadFile read;
     	fseek(m_dictFile, (m_dataLoc-1)*ALD_BLOCK+loc, SEEK_SET);
 
 		u8 *buf = (u8 *)read(m_dictFile, 1);
@@ -500,7 +500,8 @@ void* AldictDocument::getBlock(int blk)
 {
     map<int, void*>::iterator iter = m_blkCache.find(blk);
     if(iter == m_blkCache.end()) {
-        ReadFile read;
+        MutexLock lock(m_cs);
+        util::ReadFile read;
         void *ptr = malloc(ALD_BLOCK);
         memset(ptr, 0, ALD_BLOCK);
         if (ptr != NULL) {

@@ -5,12 +5,12 @@
 #if CONFIG_QT5
 #include "gui/qt/mainwindow.h"
 #include <QApplication>
+#include <QTranslator>
 #endif
 
 static void on_exit()
 {
     g_log(LOG_INFO,"main.cpp on_exit()\n");
-    printf("on_exit");
 }
 
 int main(int argc, char* argv[])
@@ -21,6 +21,12 @@ int main(int argc, char* argv[])
 
 #if CONFIG_QT5
     QApplication a(argc, argv);
+    QTranslator translator;
+    if (g_application.m_configure->m_uilanID == UILAN_CN) {
+        translator.load("gui/qt/uitr_cn");
+        a.installTranslator(&translator);
+    }
+
     MainWindow w;
     w.show();
     w.registerSysExit(on_exit);

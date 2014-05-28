@@ -163,6 +163,7 @@ def xml_alphadict_writeword(word_lt=None, phonetic_lt=None, explanation_lt="",
             e_word.appendChild(e_a)
 
 	e_words.appendChild(e_word)
+
 def create_element_childlist(e, t, c=None, p=None):
 	""" Create a dom element with a series text nodes
 

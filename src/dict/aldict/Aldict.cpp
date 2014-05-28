@@ -117,7 +117,7 @@ void Aldict::summary(string& text)
     stream << (char *)(m_doc.m_header.d_identi);
     stream << "\n";
 
-    stream << "version:    ";
+    stream <<  "version:    ";
     stream <<  ((int) m_doc.m_header.d_version[0]);
     stream << ".";
     stream <<  ((int) m_doc.m_header.d_version[1]);   
@@ -132,7 +132,6 @@ void Aldict::summary(string& text)
     stream << (char *)(m_doc.m_header.p_identi);
     stream << "\n";
 
-    stream << "date";
     stream << ald_read_u16(m_doc.m_header.p_date);
     stream << "-";
     stream << ((int) m_doc.m_header.p_date[2]);
@@ -189,7 +188,7 @@ void Aldict::addToIndexCache(const string key, const iIndexItem& item)
             }
             m_indexCache[key] = item;
         }
-    }
+    } // else if : There may be duplicate indexs, should lookup again. 
 }
 
 void Aldict::dataItemTodictItem(const struct aldict_dataitem& d, iDictItem& i)

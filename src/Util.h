@@ -2,9 +2,12 @@
 #define _UTIL_H_
 #include "alphadict.h"
 #include "iDict.h"
+#include "tinyxml2/tinyxml2.h"
+
 #include <string>
 
 using namespace std;
+using namespace tinyxml2;
 
 class Util
 {
@@ -23,6 +26,8 @@ public:
     static bool currentDir(string& path);
     static bool execDir(string& path);
 };
+
+namespace util {
 
 class ReadFile {
 public:
@@ -56,4 +61,12 @@ public:
 	}
 	void *ptr;
 };
+
+class XMLUtil {
+public:
+    static XMLElement* child(XMLElement *parent, int n);
+    static int childrenSize(XMLElement *parent);
+};
+
+}
 #endif

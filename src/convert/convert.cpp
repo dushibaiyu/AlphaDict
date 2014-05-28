@@ -23,7 +23,7 @@
 using namespace std;
 using namespace tinyxml2;
 
-#define VERSION     "1"
+#define VERSION     "1.1"
 
 #define INDEX_BLOCK_NR   2
 #define STRINX_WORDS_MAX 10
@@ -40,8 +40,7 @@ static int total_chrindex = 0; /* Used in recursion funciton write_charindex */
 static int total_entry = 0;
 static bool duplicate_index_flag = false;
 
-static void usage();
-static void make_dict(const string& xmlfile, const string& dictfile);
+static void make_dict(const vector<string>&xmlfiles, const string& dictfile);
 static void add_to_indextree(ktree::tree_node<aldict_charindex>::treeNodePtr parent,
 			     char *str, off_t pos);
 static void add_to_dictfile(const string& strWord, const XMLElement* wordElement, FILE *file);
@@ -56,36 +55,64 @@ static off_t check_block_bound(off_t pos, int nbytes);
 static char* wcsrtombs_r(const wchar_t *wc, size_t *mb_len);
 static unsigned int get_timems();
 
+static void usage()
+{
+	printf("Usage: AlConvert [options] [xml files]\n");
+	printf("options:");
+    printf("    -h help\n");
+    printf("    -v version\n");
+    printf("    -o dict file \n\n");
+	printf("For example:\n");
+	printf("    AlConvert -o mydict    xx1.xml  xx2.xml\n");
+}
+
 int main(int argc, char* argv[])
 {
 	int c;
-	string dicpath = "";
-	string xmlpath = "";
 	string outpath = "";
+	vector<string> xmlpath;
 
 	setlocale(LC_ALL, "C.UTF-8");
     get_timems();
-#if 0
+
 	if (argc < 2) {
 		usage();
 		return 0;
 	}
 
-	while (( c = getopt(argc, argv, "x:o:")) != -1) {
-	switch (c) {
-	case 'x':
-		xmlpath = optarg;
-	break;
-	case 'o':
-		outpath = optarg;
-		outpath += DICT_SUFFIX;
-	break;
-	case '?':
-		usage();
-		goto out;
+	while (( c = getopt(argc, argv, "hvo:")) != -1) {
+	    switch (c) {
+	    case 'h':
+	    	usage();
+            return 0;
+
+        case 'v':
+            printf("version: %s\n", VERSION);
+            return 0;
+
+	    case 'o':
+	    	outpath = optarg;
+	    	outpath += DICT_SUFFIX;
+            printf("outpath %s\n", outpath.c_str());
+	        break;
+
+	    case '?':
+            usage();
+            return 0;
+	    }
 	}
-	}
-#endif
+
+    for (int i=optind; i<argc; i++) {
+        xmlpath.push_back(argv[i]);
+    }
+
+    if (outpath == "" || xmlpath.size() == 0) {
+        usage();
+        return 0;
+    }
+
+    make_dict(xmlpath, outpath);
+#if 0
 	if (argc == 3) {
 		xmlpath = argv[1];
 		outpath = argv[2];
@@ -95,27 +122,19 @@ int main(int argc, char* argv[])
 		usage();
 		return 0;
 	}
+#endif
 }
 
-static void usage()
-{
-    printf("AlConvert ver %s\n\n", VERSION);
-	printf("Usage: AlConvert <xml> <dict>\n");
-	printf("Convert <xml> file to <dict> file.\n");
-	printf("For example:\n");
-	printf("    AlConvert xx.xml  xx     [create a dict xx]\n");
-}
-
-static void make_dict(const string& xmlpath, const string& dictpath)
+static void make_dict(const vector<string>& xmlfiles, const string& dictpath)
 {
 	FILE *dictfile;
-    printf("{make_dict}, xmlpath(%s), dictpath(%s)\n", xmlpath.c_str(), dictpath.c_str());
+    printf("{make_dict}, xmlfiles(%s), dictpath(%s)\n", xmlfiles[0].c_str(), dictpath.c_str());
 
 	AL_ASSERT((dictfile = fopen(dictpath.c_str(),"w")) != NULL,
 		  "Can't open dict file, please check permission");
     
 	XMLDocument doc;
-	int xmlerr_code = doc.LoadFile(xmlpath.c_str());
+	int xmlerr_code = doc.LoadFile(xmlfiles[0].c_str());
 	if (xmlerr_code != XML_NO_ERROR) {
 	    fprintf(stderr, "XMLDocument can't load xml: error code(%d)\n", xmlerr_code);
 	    exit(xmlerr_code);
@@ -240,23 +259,37 @@ static void make_dict(const string& xmlpath, const string& dictpath)
 	ktree::kary_tree<aldict_charindex> indexTree(charIndex);
 	const XMLElement* wordsElement = rootElement->FirstChildElement("words");
 	AL_ASSERT(wordsElement, "Parse xml failure");
-	const XMLElement* wordElement = wordsElement->FirstChildElement();
-    
+    const XMLElement* wordElement = wordsElement->FirstChildElement();
+
+    int curxml = 0;
+
+WRITE_WORDS:
 	while (wordElement) {
-		off_t start;
-		char *word = (char *)wordElement->Attribute(WORD_ATTR);
-
-		start = ftello(dict_tmpfile);
-		add_to_dictfile(string(word), wordElement, dict_tmpfile);
-
-		if (word != NULL) {
-			//add_to_indextree(indexTree.root(), (char *)pstrTemp, start);
-		    add_to_indextree(indexTree.root(), word, start);
-			add_alias(indexTree, wordElement, start);
-		}
-
-		wordElement = wordElement->NextSiblingElement();
+        off_t start;
+        char *word = (char *)wordElement->Attribute(WORD_ATTR);
+        
+        start = ftello(dict_tmpfile);
+        add_to_dictfile(string(word), wordElement, dict_tmpfile);
+        
+        if (word != NULL) {
+	    	//add_to_indextree(indexTree.root(), (char *)pstrTemp, start);
+	        add_to_indextree(indexTree.root(), word, start);
+            add_alias(indexTree, wordElement, start);
+        }
+        wordElement = wordElement->NextSiblingElement();
 	}
+
+    if (++curxml < xmlfiles.size()) {
+        printf("{make_dict}, read next xmlfile(%s)\n", xmlfiles[curxml].c_str());
+        if (doc.LoadFile(xmlfiles[curxml].c_str()) == XML_NO_ERROR) {
+            wordElement = XMLConstHandle(doc.RootElement()).FirstChildElement("words").FirstChildElement().ToElement();
+        } else {
+            wordElement = NULL;
+            printf("loading failure\n");
+        }
+        goto WRITE_WORDS;
+    }
+
 	printf("add to index tree, done\n");
 	/*-@ Stage 3: Trim index tree, remove string index and write it to string index temp file. */
 	trim_indextree(indexTree.root(), 0, strinx_tempfile);
@@ -316,10 +349,14 @@ static void add_to_dictfile(const string& strWord, const XMLElement* wordElement
 	const XMLElement* phoneticNameElement = 
 		wordElementHd.FirstChildElement("phonetic").FirstChild().ToElement();
 	for (; phoneticNameElement; ) {
-		strPhonetic += phoneticNameElement->Value();
-		strPhonetic += phoneticNameElement->GetText();
-		strPhonetic += "\n";
-		phoneticNameElement = phoneticNameElement->NextSiblingElement();
+        try {
+		    strPhonetic += phoneticNameElement->Value();
+		    strPhonetic += phoneticNameElement->GetText();
+		    strPhonetic += "\n";
+		    phoneticNameElement = phoneticNameElement->NextSiblingElement();
+        } catch (exception e) {
+            printf("parse <phonetic/> failure\n");
+        }
 	}
 	
 	len[0] = strPhonetic.length();
@@ -328,9 +365,14 @@ static void add_to_dictfile(const string& strWord, const XMLElement* wordElement
 	    fwrite((void *)strPhonetic.c_str(), len[0], 1, dict);
 
 	string strExpln="";
-	const XMLElement* explnElement = 
-		wordElementHd.FirstChildElement("explanation").ToElement();
-    strExpln += explnElement->FirstChild()->Value();
+    try {
+	    const XMLElement* explnElement = 
+	    	wordElementHd.FirstChildElement("explanation").ToElement();
+        if (explnElement->FirstChild())
+            strExpln += explnElement->FirstChild()->Value();
+    } catch (exception e) {
+        printf("parse <explanation/> failure\n");
+    }
 
 	ald_write_u16(len, strExpln.length());
 	fwrite((void *)len, 2, 1, dict);

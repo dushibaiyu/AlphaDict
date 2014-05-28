@@ -207,6 +207,8 @@ bool Util::execDir(string& path)
 #endif
 }
 
+namespace util {
+
 size_t ReadFile::operator()(FILE *f, void *ptr, size_t length)
 {
 	int rdbytes = 0;
@@ -234,3 +236,30 @@ void* ReadFile::operator()(FILE *f, size_t length)
 	return ptr;	
 }
 
+XMLElement* XMLUtil::child(XMLElement *parent, int n /*0..n*/)
+{
+    XMLElement* e = parent->FirstChildElement();
+    if (!e)
+        return NULL;
+
+    for (int i=0; i<n; i++) {
+        if (e)
+            e = e->NextSiblingElement();
+        else
+            return NULL;
+    }
+    return e;
+}
+
+int XMLUtil::childrenSize(XMLElement *parent)
+{
+    XMLElement* e = parent->FirstChildElement();
+    int size = 0;
+    while (e) {
+        size++;
+        e = e->NextSiblingElement();
+    }
+    return size;
+}
+
+}

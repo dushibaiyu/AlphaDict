@@ -43,7 +43,6 @@ public:
 	virtual void onTaskDone();
 
     Configure* m_configure;
-
 private:
     void slowJob(void);
 

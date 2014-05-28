@@ -74,7 +74,7 @@ void DictManager::initialization()
 				dict->summary(nodeVec[i].summary);
             }
             config->writeDictItem(i);
-        }        
+        }
     }
     TaskManager::getInstance()->addTask(new LoadDictTask(), 0);
 }
@@ -135,11 +135,26 @@ void DictManager::reloadDict()
 {
     if (!m_bReload) {
         m_bReload = true;
+        g_log(LOG_DEBUG,"DictManager::reloadDict\n");
         TaskManager::getInstance()->addTask(new LoadDictTask(), 0);
     }
 }
 
-void DictManager::lookup(const string& input, int which)
+void DictManager::lookup(const string& input, const int which, DictItemList& items)
+{
+    MutexLock lock(m_cs);
+    if (m_dictTotal > 0) {
+        if (which == -1) {
+            for (int i=0; i<m_dictTotal; i++)
+                m_dictOpen[i].dict->lookup(input, items);
+        } else {
+            if (which < m_dictTotal)
+                m_dictOpen[which].dict->lookup(input, items);
+        }
+    }
+}
+
+void DictManager::lookup(const string& input, const int which)
 {
     MutexLock lock(m_cs);
     if (m_dictTotal == 0)
@@ -177,7 +192,7 @@ void DictManager::onAddLookupResult(int which, DictItemList& items)
         m_dictOpen[which].task = NULL; /* TaskManager will delete this pointer */
         //printf("{onAddLookupResult} %u\n", Util::getTimeMS());
     } else {
-        if (m_dictOpen[which].pending != "") {                
+        if (m_dictOpen[which].pending != "") {
             Message msg;
             msg.strArg1 = m_dictOpen[which].pending;
             msg.iArg1 = which;

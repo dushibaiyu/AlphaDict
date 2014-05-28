@@ -4,6 +4,7 @@
 #include "alphadict.h"
 #include "aldict_inner.h"
 #include "dict/iDict.h"
+#include "MutexLock.h"
 
 using namespace ktree;
 using namespace std;
@@ -70,6 +71,7 @@ private:
     int m_indexNumber;
 
     std::map<int, void*> m_blkCache;
+    MutexCriticalSection m_cs;
 };
 
 #endif

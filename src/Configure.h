@@ -20,6 +20,11 @@ struct DictNode {
     string summary;
 };
 
+enum UILanID {
+    UILAN_EN = 0,
+    UILAN_CN,
+};
+
 class Configure
 {
 public:
@@ -28,13 +33,14 @@ public:
     ~Configure();
 
     void initialization();
-    void scanDictDir();
+    void scanDictDir(vector<string>& dictFiles);
 
     void moveDictItem(int index, bool down=true);
     void enableDict(int index, bool en=true);
     void writeDictItem(int item);
     void writeSrcLan(const string& lan);
     void writeDetLan(const string& lan);
+    void writeUILanID(int id);
     void writeXml();
 
     vector<string> m_languages;
@@ -43,14 +49,17 @@ public:
     string m_configFile;
     string m_srcLan;
     string m_detLan;
+    int m_uilanID;
+
     vector<struct DictNode> m_dictNodes;
+
+    string getVBPath() { return m_homeDir+"/vbook.xml";}
 
 private:
     void   load(const string& xmlpath);
     void   loadLanguage();
-    void   scanDictDir(const string& path);
-    bool   findDict(string name);
-    string dictItemName(int item);
+    void   scanDictDir(const string& path, vector<string>& dictFiles);
+    int    findDict(const string& path, const vector<string>& dictFiles);
 
     XMLDocument m_doc;
     bool m_dirty;
