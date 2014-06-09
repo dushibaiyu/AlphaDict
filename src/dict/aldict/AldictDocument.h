@@ -40,7 +40,7 @@ private:
 	void loadIndexTree(tree_node<aldict_charindex>::treeNodePtr parent,
                        void *chrblock, address_t size);
 
-    bool loadIndex(wchar_t *str, int inx, struct IndexStat *stat,
+    bool loadIndex(u4char_t *str, int inx, struct IndexStat *stat,
                    tree_node<aldict_charindex>::treeNodePtr parent,
                    IndexList& indexList);
 

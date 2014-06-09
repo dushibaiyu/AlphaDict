@@ -1,10 +1,9 @@
 #ifndef _VBOOKMODEL_H_
 #define _VBOOKMODEL_H_
+#include <QtCore/QAbstractListModel>
 
 #include "MutexLock.h"
 #include "VocabularyBook.h"
-
-#include <QAbstractListModel>
 
 class VBookModel: public QAbstractListModel
 {

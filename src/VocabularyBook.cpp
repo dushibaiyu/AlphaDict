@@ -1,8 +1,14 @@
-#include "VocabularyBook.h"
-#include "DictManager.h"
-#include "Util.h"
+# ifdef _WINDOWS
+#include <Windows.h>
+# endif
 
 #include <sstream>
+
+#include "Log.h"
+#include "DictManager.h"
+#include "Util.h"
+#include "VocabularyBook.h"
+
 VocabularyBook::VocabularyBook()
 {
 }
@@ -122,7 +128,10 @@ string VocabularyBook::getWord(const int row) const
 
 string VocabularyBook::getExpl(const int row) const
 {
-    list<struct VBItem>::iterator iter = m_wdlist.begin();
-    ITER_ADVANCE(iter, row);
-    return (*iter).expl;
+    if ( row < m_wdlist.size()) {
+        list<struct VBItem>::iterator iter = m_wdlist.begin();
+        ITER_ADVANCE(iter, row);
+        return (*iter).expl;
+    }
+    return "";
 }

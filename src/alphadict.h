@@ -1,13 +1,16 @@
 #ifndef _ALPHADICT_H_
 #define _ALPHADICT_H_
-
+# ifdef _WINDOWS
+#include <Windows.h>
+#include "win32/config.h"
+# endif
 #include <stdio.h>
 #include <stdlib.h>
 
 #include "type.h"
+#ifdef _LINUX
 #include "config.h"
-#include "Log.h"
-
+#endif
 #define AL_VERSION  "1.0"
 
 #define AL_ASSERT(cond, msg)  \

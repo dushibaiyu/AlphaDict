@@ -1,6 +1,9 @@
-#include "Aldict.h"
+# ifdef _WINDOWS
+#include <Windows.h>
+# endif
 
 #include <sstream>
+#include "Aldict.h"
 
 Aldict::Aldict():m_bLoad(false)
 {

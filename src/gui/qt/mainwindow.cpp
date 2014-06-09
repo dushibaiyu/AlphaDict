@@ -1,3 +1,7 @@
+#include <stdio.h>
+#include <QtWidgets/QScrollBar>
+#include <QtWidgets/QToolTip>
+
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "DictIndexModel.h"
@@ -5,10 +9,6 @@
 #include "MessageQueue.h"
 #include "QtMessager.h"
 #include "iDict.h"
-
-#include <stdio.h>
-#include <QScrollBar>
-#include <QToolTip>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -34,7 +34,7 @@ MainWindow::MainWindow(QWidget *parent) :
     m_vbookModel = new VBookModel(m_config->getVBPath());
     ui->vbookListView->setModel(m_vbookModel);
 
-    m_messager = new QtMessager(this, m_dictIndexModel);
+    m_messager = new QtMessager(this, m_dictIndexModel, g_application.uiMessageQ());
     m_messager->start();
     
     ui->tabWidget->removeTab(1);
@@ -53,12 +53,12 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_srcLanComboBox_currentIndexChanged(const QString &arg1)
 {
-    g_sysMessageQ.push(MSG_SET_SRCLAN, std::string(arg1.toUtf8().data()));
+    g_application.sysMessageQ()->push(MSG_SET_SRCLAN, std::string(arg1.toUtf8().data()));
 }
 
 void MainWindow::on_detLanComboBox_currentIndexChanged(const QString &arg1)
 {
-    g_sysMessageQ.push(MSG_SET_DETLAN, std::string(arg1.toUtf8().data()));
+    g_application.sysMessageQ()->push(MSG_SET_DETLAN, std::string(arg1.toUtf8().data()));
 }
 
 void MainWindow::on_inputLineEdit_editingFinished()
@@ -74,7 +74,7 @@ void MainWindow::on_inputLineEdit_textChanged(const QString &arg1)
 void MainWindow::on_queryButton_clicked()
 {
     QString input = ui->inputLineEdit->text();
-	g_sysMessageQ.push(MSG_DICT_QUERY, std::string(input.toUtf8().data()));
+	g_application.sysMessageQ()->push(MSG_DICT_QUERY, std::string(input.toUtf8().data()));
     ui->dictTextEdit->document()->clear();
 }
 
@@ -82,7 +82,7 @@ void MainWindow::on_indexListView_clicked(const QModelIndex &index)
 {
     iIndexItem* item = m_dictIndexModel->item(index.row());
     if (item != NULL) {
-	    g_sysMessageQ.push(MSG_DICT_INDEX_QUERY, index.row(), (void *)(m_dictIndexModel->item(index.row())));
+	    g_application.sysMessageQ()->push(MSG_DICT_INDEX_QUERY, index.row(), (void *)(m_dictIndexModel->item(index.row())));
 		ui->dictTextEdit->document()->clear();
 		QString text = QString::fromUtf8(item->index.c_str());
 		ui->inputLineEdit->setText(text);
@@ -227,7 +227,7 @@ void MainWindow::on_dictUpToolButton_clicked()
         ui->dictListWidget->insertItem(currentIndex-1, currentItem);
         ui->dictListWidget->setCurrentRow(currentIndex-1);
         //g_application.m_configure->moveDictItem(currentIndex, false);
-		g_sysMessageQ.push(MSG_MOVE_DICTITEM, currentIndex, 0);
+		g_application.sysMessageQ()->push(MSG_MOVE_DICTITEM, currentIndex, 0);
     }
 }
 
@@ -240,7 +240,7 @@ void MainWindow::on_dictDownToolButton_clicked()
         ui->dictListWidget->insertItem(currentIndex+1, currentItem);
         ui->dictListWidget->setCurrentRow(currentIndex+1);
         //g_application.m_configure->moveDictItem(currentIndex);
-		g_sysMessageQ.push(MSG_MOVE_DICTITEM, currentIndex, 1);
+		g_application.sysMessageQ()->push(MSG_MOVE_DICTITEM, currentIndex, 1);
     }
 }
 
@@ -274,7 +274,7 @@ void MainWindow::onActionSettingPageAdded()
     } else {
         ui->tabWidget->removeTab(inx);
         /* will reload dictioanry if necessary */
-        g_sysMessageQ.push(MSG_RELOAD_DICT, -1, -1);
+        g_application.sysMessageQ()->push(MSG_RELOAD_DICT, -1, -1);
     }
 }
 
@@ -301,9 +301,9 @@ void MainWindow::on_dictListWidget_clicked(const QModelIndex &index)
     if (row != -1) {
         //printf("itemChanged (%d, %d)\n", row, item->checkState());
         if (item->checkState() == Qt::Checked)
-		    g_sysMessageQ.push(MSG_SET_DICTEN, row, 1);
+		    g_application.sysMessageQ()->push(MSG_SET_DICTEN, row, 1);
         else if (item->checkState() == Qt::Unchecked)
-		    g_sysMessageQ.push(MSG_SET_DICTEN, row, 0);
+		    g_application.sysMessageQ()->push(MSG_SET_DICTEN, row, 0);
     }
 
     QString info = QString(m_config->m_dictNodes[index.row()].summary.c_str());
@@ -317,7 +317,7 @@ void MainWindow::on_dictListWidget_clicked(const QModelIndex &index)
 void MainWindow::on_tabWidget_currentChanged(int index)
 {
     if (index == 0)
-        g_sysMessageQ.push(MSG_RELOAD_DICT, -1, -1);
+        g_application.sysMessageQ()->push(MSG_RELOAD_DICT, -1, -1);
 }
 
 void MainWindow::on_vbdelToolButton_clicked()
@@ -376,11 +376,11 @@ void MainWindow::showToolTip(QString info, QWidget* w, int displayTimeMS)
     QPoint pos = w->pos();
     QRect rect(0, 0, 120, 80);
     //QFont serifFont("Times", 12, QFont::Bold);
-    QPalette color;
-    color.setColor( QPalette::Inactive,QPalette::QPalette::ToolTipBase, Qt::yellow);
+    //QPalette color;
+    //color.setColor( QPalette::Inactive,QPalette::QPalette::ToolTipBase, Qt::yellow);
     pos.setX(this->pos().x() + pos.x());
     pos.setY(this->pos().y() + pos.y() + 80);
-    QToolTip::setPalette(color);
+    //QToolTip::setPalette(color);
     //QToolTip::setFont(serifFont);
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 2, 1))
     if (displayTimeMS != -1)

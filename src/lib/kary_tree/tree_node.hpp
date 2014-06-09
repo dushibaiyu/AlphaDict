@@ -13,6 +13,7 @@
 #include <list>
 #include <iterator>
 
+#ifdef _LINUX
 namespace std {
 template<class ForwardIt>
 ForwardIt next(ForwardIt it, typename std::iterator_traits<ForwardIt>::difference_type n = 1)
@@ -21,6 +22,7 @@ ForwardIt next(ForwardIt it, typename std::iterator_traits<ForwardIt>::differenc
     return it;
 }
 };
+#endif
 
 namespace ktree {
 
@@ -56,7 +58,7 @@ public:
 
 	treeNodePtr operator[](const int pos) const
 	{
-		child(pos);
+		return child(pos);
 	}
 	
 	treeNodePtr child(const int pos) const

@@ -1,22 +1,28 @@
-#define _LOG_CPP_
-
-#include "alphadict.h"
-#include "Log.h"
+# ifdef _WINDOWS
+#include <Windows.h>
+# endif
 
 #include <stdarg.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <errno.h>
-
 #include <string>
 
+#include "alphadict.h"
+#include "Log.h"
+#include "Util.h"
+
+Log g_log;
+
 Log::Log()
-: m_level(LOG_DEBUG)
+: m_level(LOG_ERROR)
 {
-	std::string path = "/tmp/alphadict.log";
+    std::string path;
+    Util::tempDir(path);
+    path += "/alphadict.log";
     //std::string path = "stdout";
-	m_logFile = fopen(path.c_str(), "w+");
+    m_logFile = fopen(path.c_str(), "w+");
 }
 
 Log::~Log()
@@ -63,7 +69,7 @@ void Log::e(const char *msg, ...)
 
 void Log::operator()(LogLevel l, const char *msg, ...)
 {
-	if(l >= m_level) {
+    if(l >= m_level) {
         VFPRINT_MSG;
     }
 }

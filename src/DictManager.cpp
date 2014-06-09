@@ -1,3 +1,6 @@
+# ifdef _WINDOWS
+#include <Windows.h>
+# endif
 
 #include "DictManager.h"
 #include "Application.h"
@@ -6,8 +9,7 @@
 #include "alphadict.h"
 #include "MessageQueue.h"
 #include "Util.h"
-
-#include <unistd.h>
+#include "Log.h"
 
 LookupTask::LookupTask(const string& input, int id, DictManager* dmgr)
 :Task(0, false)
@@ -33,7 +35,7 @@ void LookupTask::abort()
 void LoadDictTask::doWork()
 {
     DictManager::getReference().loadDict();
-    g_uiMessageQ.push(MSG_RESET_INDEXLIST);
+    g_application.uiMessageQ()->push(MSG_RESET_INDEXLIST);
 }
 
 DictManager& DictManager::getReference()
@@ -99,8 +101,12 @@ bool DictManager::loadDict(bool more)
         if (m_dictOpen[i].task != NULL) {
             m_dictOpen[i].task->abort();
             do {
+            #ifdef _WINDOWS
+                Sleep(20);
+            #else
                 usleep(1000*20);
                 pthread_yield();
+            #endif
             }while(m_dictOpen[i].task != NULL);
         }
     }
@@ -188,7 +194,7 @@ void DictManager::onAddLookupResult(int which, DictItemList& items)
         *arg1 = items;
         int did = m_dictOpen[which].dictId;
 	    (*arg1)[0].dictname = g_application.m_configure->m_dictNodes[did].name;
-        g_uiMessageQ.push(MSG_SET_DICTITEMS, -1, (void *)arg1); /* UI should delete arg1 */
+        g_application.uiMessageQ()->push(MSG_SET_DICTITEMS, -1, (void *)arg1); /* UI should delete arg1 */
         m_dictOpen[which].task = NULL; /* TaskManager will delete this pointer */
         //printf("{onAddLookupResult} %u\n", Util::getTimeMS());
     } else {
@@ -198,7 +204,7 @@ void DictManager::onAddLookupResult(int which, DictItemList& items)
             msg.iArg1 = which;
             msg.id = MSG_DICT_PENDING_QUERY;
             m_dictOpen[which].task = NULL; /* TaskManager will delete this pointer */
-            g_sysMessageQ.push(msg);
+            g_application.sysMessageQ()->push(msg);
         }
     }
 }
@@ -225,7 +231,7 @@ void DictManager::onClick(int row, iIndexItem* item)
     arg1->push_back(m_dictOpen[0].dict->onClick(row, item));
     int did = m_dictOpen[0].dictId;
     (*arg1)[0].dictname = g_application.m_configure->m_dictNodes[did].name;
-    g_uiMessageQ.push(MSG_SET_DICTITEMS, -1, (void *)arg1);
+    g_application.uiMessageQ()->push(MSG_SET_DICTITEMS, -1, (void *)arg1);
 }
 
 void DictManager::setDictSrcLan(string& srclan)

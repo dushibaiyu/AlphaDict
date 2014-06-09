@@ -1,8 +1,8 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include <QMainWindow>
-#include <QModelIndexList>
+#include <QtWidgets/QMainWindow>
+#include <QtCore/QModelIndexList>
 
 #include "Application.h"
 

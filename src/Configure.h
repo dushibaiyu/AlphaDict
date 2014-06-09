@@ -61,7 +61,7 @@ private:
     void   scanDictDir(const string& path, vector<string>& dictFiles);
     int    findDict(const string& path, const vector<string>& dictFiles);
 
-    XMLDocument m_doc;
+    tinyxml2::XMLDocument m_doc;
     bool m_dirty;
     SpinCriticalSection m_cs;
 };

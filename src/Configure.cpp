@@ -1,16 +1,25 @@
+# ifdef _WINDOWS
+#include <Windows.h>
+# endif
+
+#include <boost/algorithm/string.hpp>
+#include <boost/filesystem.hpp>
+#include <sstream>
+# ifdef _LINUX
+#include <dirent.h>
+# endif
+
+#include "Log.h"
 #include "Application.h"
 #include "Util.h"
 #include "DictManager.h"
 #include "MessageQueue.h"
 #include "Configure.h"
 #include "alphadict.h"
-
-#include <dirent.h>
-#include <boost/algorithm/string.hpp>
-#include <boost/filesystem.hpp>
-#include <sstream>
+#include "SpinLock.h"
 
 using namespace tinyxml2;
+using namespace boost::filesystem;
 
 #define DICTNODE_NUM_MAX   48
 
@@ -32,19 +41,17 @@ Configure::~Configure()
 
 void Configure::initialization()
 {
-    string userHome;
-    if (getenv("HOME"))
-        userHome = getenv("HOME");
-    else
-        userHome = "/root";
-    m_homeDir = userHome + "/." + APP_NAME;
+    Util::usrHomeDir(m_homeDir);
     m_configFile = m_homeDir + "/configure.xml";
     g_log(LOG_INFO, "home direcotry:(%s)\n", m_homeDir.c_str());
 
+#ifdef _WINDOWS
+    m_dataDir = m_homeDir + "/system";
+#else
     m_dataDir = DATADIR;
+#endif
     //Util::execDir(m_dataDir);
     g_log(LOG_INFO, "system dir :(%s)\n", m_dataDir.c_str());
-
     if (!Util::isDirExist(m_homeDir)) {
          AL_ASSERT(Util::createDir(m_homeDir) == true, "{Configure} can't create home dir\n");
          string path = m_dataDir;
@@ -65,7 +72,7 @@ void Configure::initialization()
     msg.strArg1 = m_srcLan;
     msg.strArg2 = m_detLan;
     msg.pArg1 = &m_languages;
-    g_uiMessageQ.push(msg);
+    g_application.uiMessageQ()->push(msg);
 }
 
 void Configure::load(const string& xmlpath)
@@ -164,6 +171,12 @@ void Configure::scanDictDir(vector<string>& dictFiles)
 
 void Configure::scanDictDir(const string& path, vector<string>& dictFiles)
 {
+#ifdef _WINDOWS
+    boost::filesystem::path p(path);
+    for (directory_iterator iter(p); iter != directory_iterator(); iter++) {
+        dictFiles.push_back(iter->path().string());
+    }
+#else
     struct dirent *ep;
     DIR *dp = opendir(path.c_str());
     //printf("dict dir path:(%s)\n", path.c_str());
@@ -177,6 +190,7 @@ void Configure::scanDictDir(const string& path, vector<string>& dictFiles)
         }
         closedir(dp);
     }
+#endif
 }
 
 void Configure::loadLanguage()

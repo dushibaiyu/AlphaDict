@@ -1,14 +1,19 @@
-#define _APPLICATION_CPP_
+# ifdef _WINDOWS
+#include <windows.h>
+# endif
 
+#include <stdlib.h>
+
+#include "Application.h"
+#include "Log.h"
 #include "DictManager.h"
 #include "TaskManager.h"
 #include "SysMessager.h"
 #include "Util.h"
-#include "Application.h"
 #include "alphadict.h"
 #include "config.h"
 
-#include <stdlib.h>
+Application g_application;
 
 void InitTask::doWork()
 {
@@ -24,9 +29,10 @@ void SlowJob::doWork()
 
 Application::Application():m_init(false)
 {
-    m_sysMessager = new SysMessager();
-    m_configure =  new Configure();
-    TaskManager::getInstance()->start(MAX_WORK_THREAD);
+    m_sysMessageQ = new MessageQueue("ui");   /* UI system should listen this */
+    m_uiMessageQ  = new MessageQueue("sys");  /* SysMessager should listen this */
+    m_sysMessager = new SysMessager(m_sysMessageQ);
+    m_configure   = new Configure();
 }
 
 Application::~Application()
@@ -34,11 +40,14 @@ Application::~Application()
     delete TaskManager::getInstance();
     delete m_sysMessager;
     delete m_configure;
+    delete m_uiMessageQ;
+    delete m_sysMessageQ;
 }
 
 void Application::initialization()
 {
-	g_log.setLevel(LOG_DEBUG);
+    TaskManager::getInstance()->start(MAX_WORK_THREAD);
+    //g_log.setLevel(LOG_DEBUG);
     g_log(LOG_INFO, "Application initialization\n");
 
     m_sysMessager->start();

@@ -1,7 +1,7 @@
 #include "VBookModel.h"
 #include <stdlib.h>
 
-#define SIZE_MAX 200
+#define LIST_SIZE_MAX 500
 
 VBookModel::VBookModel(const string& vbookpath):examIndex(0)
 {
@@ -46,7 +46,7 @@ QVariant VBookModel::headerData(int section, Qt::Orientation orientation, int ro
 
 bool VBookModel::add(const QString& word)
 {
-    if (m_vocabularyBook->size() < SIZE_MAX) {
+    if (m_vocabularyBook->size() < LIST_SIZE_MAX) {
         beginResetModel();
         bool ret = m_vocabularyBook->add(std::string(word.toUtf8().data()));
         endResetModel();

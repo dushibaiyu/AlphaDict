@@ -28,7 +28,7 @@ private:
     };
 
     mutable list<struct VBItem> m_wdlist;
-    XMLDocument m_doc;
+    tinyxml2::XMLDocument m_doc;
     string m_bookpath;
 };
 

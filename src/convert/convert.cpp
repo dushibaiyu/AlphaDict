@@ -8,10 +8,17 @@
  *
  */
 
+#ifdef WIN32
+#include <Windows.h>
+#include <mbctype.h>
+#include "win32/pgetopt.h"
+#endif
+
 #include "alphadict.h"
 #include "aldict/aldict_inner.h"
 #include "tinyxml2/tinyxml2.h"
 #include "kary_tree/kary_tree.hpp"
+#include "Util.h"
 
 #include <time.h>
 #include <stddef.h>
@@ -49,11 +56,8 @@ static void trim_indextree(ktree::tree_node<aldict_charindex>::treeNodePtr paren
 			   int depth, FILE* sinxfile);
 static void write_charindex(ktree::tree_node<aldict_charindex>::treeNodePtr parent,
 			    FILE* cinxfile);
-static wchar_t mbrtowc_nextwc(char** strmb);
 static void merge_file(FILE *det, FILE *src);
 static off_t check_block_bound(off_t pos, int nbytes);
-static char* wcsrtombs_r(const wchar_t *wc, size_t *mb_len);
-static unsigned int get_timems();
 
 static void usage()
 {
@@ -69,11 +73,13 @@ static void usage()
 int main(int argc, char* argv[])
 {
 	int c;
-	string outpath = "";
+	string outpath;
 	vector<string> xmlpath;
 
+#ifdef _LINUX
 	setlocale(LC_ALL, "C.UTF-8");
-    get_timems();
+#endif
+        Util::getTimeMS();
 
 	if (argc < 2) {
 		usage();
@@ -130,10 +136,10 @@ static void make_dict(const vector<string>& xmlfiles, const string& dictpath)
 	FILE *dictfile;
     printf("{make_dict}, xmlfiles(%s), dictpath(%s)\n", xmlfiles[0].c_str(), dictpath.c_str());
 
-	AL_ASSERT((dictfile = fopen(dictpath.c_str(),"w")) != NULL,
+	AL_ASSERT((dictfile = fopen(dictpath.c_str(),"wb")) != NULL,
 		  "Can't open dict file, please check permission");
     
-	XMLDocument doc;
+	tinyxml2::XMLDocument doc;
 	int xmlerr_code = doc.LoadFile(xmlfiles[0].c_str());
 	if (xmlerr_code != XML_NO_ERROR) {
 	    fprintf(stderr, "XMLDocument can't load xml: error code(%d)\n", xmlerr_code);
@@ -249,10 +255,13 @@ static void make_dict(const vector<string>& xmlfiles, const string& dictpath)
 	printf("parse header, pass\n");
     printf("to create index tree\n");
 	/*-@ Stage 2: Create Index tree, write data file. */
-	#ifdef _LINUX
+#ifdef _LINUX
 	FILE *dict_tmpfile = fopen("/tmp/alphadict_tmp", "w+");
 	FILE *strinx_tempfile = fopen("/tmp/alphadict_tmp2", "w+");
-	#endif
+#elif defined(WIN32)
+	FILE *dict_tmpfile = fopen("alphadict_tmp", "w+bTD");
+	FILE *strinx_tempfile = fopen("alphadict_tmp2", "w+bTD");        
+#endif
 
 	struct aldict_charindex charIndex;
 	memset(&charIndex, 0, sizeof(struct aldict_charindex));
@@ -330,7 +339,7 @@ WRITE_WORDS:
 	printf("write dict file, done: \n");
     printf("    entries: %d\n", total_entry);
     printf("    char index: %d\n", total_chrindex);
-    printf("    costs: (%u)s\n", get_timems()/1000);
+    printf("    costs: (%u)s\n", Util::getTimeMS()/1000);
 	fclose(dictfile);
 	fclose(strinx_tempfile);
 	fclose(dict_tmpfile);
@@ -380,10 +389,10 @@ static void add_to_dictfile(const string& strWord, const XMLElement* wordElement
 }
 
 static int bsearch(ktree::tree_node<aldict_charindex>::treeNodePtr parent,
-                    wchar_t key, int min, int max)
+                    u32 key, int min, int max)
 {
     int mid = (min + max) / 2;
-    wchar_t chr = ald_read_u32(parent->child(mid)->value().wchr);
+    u32 chr = ald_read_u32(parent->child(mid)->value().wchr);
     //printf("bsearch min(%d), mid(%d), max(%d): chr(%u)-->key(%u)\n", min, mid, max, chr, key);
     if (min >= max) {
         return min;
@@ -402,9 +411,9 @@ static int bsearch(ktree::tree_node<aldict_charindex>::treeNodePtr parent,
 static void add_to_indextree(ktree::tree_node<aldict_charindex>::treeNodePtr parent,
                              char *str, off_t d_off)
 {
-	const wchar_t key = mbrtowc_nextwc(&str); /* "str" will be modified */
+	const u32 key = Util::utf8byteToUCS4Char((const char**)&str); /* "str" will be modified */
 	if (!key)
-		return;
+	    return;
 
     static int cache[3] = {-1, -1, -1};
     static int cchinx = 0;
@@ -412,7 +421,7 @@ static void add_to_indextree(ktree::tree_node<aldict_charindex>::treeNodePtr par
 	ktree::tree_node<aldict_charindex>::treeNodePtr next;
 	int size = parent->children().size();
 	bool found = false;
-    wchar_t chr;
+    u32 chr;
     int pos=0;
 
     //printf("1: %u, %d\n", get_timems(), size);
@@ -478,7 +487,7 @@ ADD:
             if (ald_read_u32((*parent)[pos]->value().location) == ALD_INVALID_ADDR) {
                 ald_write_u32((*parent)[pos]->value().location, d_off);
             } else {
-                printf("WARRNING: append a duplicate index--last wchar_t('%lc')\n", chr);
+                printf("WARRNING: append a duplicate index--last u32('%lc')\n", chr);
                 duplicate_index_flag = true;
                 ald_write_u32(charInx.wchr, 0);
                 (*parent)[pos]->insert(charInx, 0);
@@ -569,11 +578,11 @@ static bool is_in_stringindex(ktree::tree_node<aldict_charindex>::treeNodePtr pa
 static void write_stringindex(ktree::tree_node<aldict_charindex>::treeNodePtr parent,
 			                 int len_inx, int* total, off_t *start, FILE* file)
 {
-	static wchar_t index[STRINX_LEN_MAX] = {0};
+	static u32 index[STRINX_LEN_MAX] = {0};
 
 	for (int i=0; i<parent->children().size(); i++) {
 		struct aldict_charindex& charIndex = (*parent)[i]->value();
-		wchar_t wchr = ald_read_u32(charIndex.wchr);
+		u32 wchr = ald_read_u32(charIndex.wchr);
 		if (len_inx < STRINX_LEN_MAX) {
 			index[len_inx] = wchr;
 		} else {
@@ -586,7 +595,8 @@ static void write_stringindex(ktree::tree_node<aldict_charindex>::treeNodePtr pa
 			int nbytes_strinx = sizeof( struct aldict_stringindex)-1;
             size_t  nbytes_str=0;
             index[len_inx+1] = L'\0';
-            char* mbindex = wcsrtombs_r(index, &nbytes_str);
+            char* mbindex = Util::ucs4StrToUTF8Str(index, &nbytes_str);
+
             if (mbindex != NULL) {
                 if (nbytes_str == (size_t) -1) {
                     nbytes_str = strlen(mbindex);
@@ -699,39 +709,6 @@ static void write_charindex(ktree::tree_node<aldict_charindex>::treeNodePtr pare
 	}
 }
 
-/// Utils.  ///
-static wchar_t mbrtowc_nextwc(char** strmb)
-{
-	wchar_t wctmp[1];
-	size_t len = strlen(*strmb);
-	size_t nbytes = mbrtowc(wctmp, *strmb, len, NULL);
-	if (nbytes > 0) {
-		if (nbytes > (size_t) - 2)
-			return 0;
-		*strmb += nbytes;
-		return wctmp[0];
-	}
-}
-
-static char* wcsrtombs_r(const wchar_t *wc, size_t *mb_len)
-{
-    size_t len = wcslen(wc);
-    len = len*sizeof(wchar_t) + 1;
-    char *result = (char *)malloc(len);
-    memset(result, '\0', len);
-    *mb_len = wcsrtombs(result, &wc, len, NULL);
-    if (*mb_len == (size_t)-1) {
-        if (result[0] == '\0') {
-            free(result);
-            return NULL;
-        } else {
-            printf("{wcsrtombs_r}: (%s), encounter a invalid wide character(0x%x)\n", result, *wc);
-        }
-    }
-
-    return result;
-}
-
 static void merge_file(FILE *det, FILE *src)
 {
 	unsigned char buf[2048];
@@ -752,16 +729,3 @@ static off_t check_block_bound(off_t pos, int nbytes)
 	return 0; /* don't seek */
 }
 
-static unsigned int get_timems()
-{
-	static unsigned long long start_mstime = 0;
-	unsigned long long now_mstime;
-	struct timespec ts;
-
-    clock_gettime(CLOCK_MONOTONIC, &ts);
-	now_mstime = (ts.tv_sec * 1000) + (ts.tv_nsec / 1000000);
-	if (start_mstime == 0) {
-		start_mstime = now_mstime;
-	}
-	return(now_mstime - start_mstime);
-}

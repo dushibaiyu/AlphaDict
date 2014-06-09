@@ -1,10 +1,10 @@
 #ifndef _UTIL_H_
 #define _UTIL_H_
+#include <string>
+
 #include "alphadict.h"
 #include "iDict.h"
 #include "tinyxml2/tinyxml2.h"
-
-#include <string>
 
 using namespace std;
 using namespace tinyxml2;
@@ -12,19 +12,20 @@ using namespace tinyxml2;
 class Util
 {
 public:
-	static unsigned int getTimeMS();
-	static wchar_t* mbstowcs(const char *mb);
-	static wchar_t  mbrtowc_r(char** mb);
-    static wchar_t* mbsrtowcs_r(const char *mb);
-    static char*    wcsrtombs_r(const wchar_t *wc);
-    static int      wcrtomb_r(char* s, wchar_t *wc);
+    static unsigned int getTimeMS();
+
     static bool isDirExist(const string& dir);
     static bool isFileExist(const string& filename);
     static bool copyFile(const string& from, const string& to);
     static void copyDir(const string& from, const string& to);
     static bool createDir(const string& path);
-    static bool currentDir(string& path);
-    static bool execDir(string& path);
+
+    static void currentDir(string& path);
+    static void usrHomeDir(string& path);
+    static void execDir(string& path);
+    static void tempDir(string& path);
+    static void removeFileName(string& path);
+    static void sleep(int ms/*milliseconds*/);
 };
 
 namespace util {
