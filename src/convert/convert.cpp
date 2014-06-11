@@ -11,21 +11,24 @@
 #ifdef WIN32
 #include <Windows.h>
 #include <mbctype.h>
-#include "win32/pgetopt.h"
 #endif
-
-#include "alphadict.h"
-#include "aldict/aldict_inner.h"
-#include "tinyxml2/tinyxml2.h"
-#include "kary_tree/kary_tree.hpp"
-#include "Util.h"
-
 #include <time.h>
 #include <stddef.h>
 #include <locale.h>
 #include <vector>
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>   /* above boost 1.32.0 */
+
+#ifdef WIN32
+#include "win32/pgetopt.h"
+#endif
+#include "type.h"
+#include "alphadict.h"
+#include "aldict/aldict_inner.h"
+#include "tinyxml2/tinyxml2.h"
+#include "kary_tree/kary_tree.hpp"
+#include "Util.h"
+#include "CharUtil.h"
 
 using namespace std;
 using namespace tinyxml2;
@@ -411,7 +414,7 @@ static int bsearch(ktree::tree_node<aldict_charindex>::treeNodePtr parent,
 static void add_to_indextree(ktree::tree_node<aldict_charindex>::treeNodePtr parent,
                              char *str, off_t d_off)
 {
-	const u32 key = Util::utf8byteToUCS4Char((const char**)&str); /* "str" will be modified */
+	const u32 key = CharUtil::utf8byteToUCS4Char((const char**)&str); /* "str" will be modified */
 	if (!key)
 	    return;
 
@@ -595,7 +598,7 @@ static void write_stringindex(ktree::tree_node<aldict_charindex>::treeNodePtr pa
 			int nbytes_strinx = sizeof( struct aldict_stringindex)-1;
             size_t  nbytes_str=0;
             index[len_inx+1] = L'\0';
-            char* mbindex = Util::ucs4StrToUTF8Str(index, &nbytes_str);
+            char* mbindex = CharUtil::ucs4StrToUTF8Str(index, &nbytes_str);
 
             if (mbindex != NULL) {
                 if (nbytes_str == (size_t) -1) {

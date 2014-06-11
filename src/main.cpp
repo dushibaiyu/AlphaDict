@@ -7,12 +7,12 @@
 #include <QtWidgets/QApplication>
 #include <QtCore/QTranslator>
 #include <QtWidgets/QStyleFactory>
+#include <QtWidgets/QMessageBox>
 #include "gui/qt/mainwindow.h"
 #endif
 
 static void on_exit()
 {
-    g_log(LOG_INFO,"main.cpp on_exit()\n");
 }
 
 #ifdef _WINDOWS
@@ -24,8 +24,9 @@ int main(int argc, char* argv[])
 #ifdef _LINUX
     setlocale(LC_ALL, "C.UTF-8");
 #endif
+    int ret = 0;
     Util::getTimeMS(); // start to timing.
-    g_application.initialization();
+    ret = g_application.initialization();
 
 #if CONFIG_QT5
 #ifdef _WINDOWS
@@ -36,11 +37,23 @@ int main(int argc, char* argv[])
     QTranslator translator;
     if (g_application.m_configure->m_uilanID == UILAN_CN) {
         string trfile = g_application.m_configure->m_dataDir + "/uitr_cn";
-        translator.load(QString::fromUtf8(trfile.c_str()));
+        //translator.load(QString::fromUtf8(trfile.c_str()));
+        translator.load(QString::fromLocal8Bit(trfile.c_str()));
         a.installTranslator(&translator);
     }
     a.setStyle(QStyleFactory::create("Fusion"));
     //a.setStyle(QStyleFactory::create("windowsvista"));
+    if (ret != 0) {
+        QMessageBox msgBox;
+        QString errmsg = QString("\n\
+system init failure, error code:(%1)    \n\n\
+please refer README.txt\n").arg(ret);
+
+	msgBox.setText(errmsg);
+	msgBox.exec();
+        return ret;
+    }
+
     MainWindow w;
     w.show();
     w.registerSysExit(on_exit);

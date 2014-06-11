@@ -85,8 +85,10 @@ try:
             words = phrase[0].split(';')
             explanation.append(phrase[1])
             xml_alphadict_writeword(words, phonetics, explanation)
-            print words[0]
-
+            try :
+			    print words[0]
+            except:
+			    pass
 finally:
 	f_input.close()
 	xml_alphadict_close()

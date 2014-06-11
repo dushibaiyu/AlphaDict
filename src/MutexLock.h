@@ -22,7 +22,7 @@ public:
 
 	~MutexCriticalSection()
 	{
-        #ifdef WIN32
+        #ifdef _WINDOWS
             CloseHandle(m_mutex);
         #else
 	    pthread_mutex_destroy(&m_mutex);
@@ -31,7 +31,7 @@ public:
 
 	void lock()
 	{
-	#ifdef WIN32
+	#ifdef _WINDOWS
             WaitForSingleObject(m_mutex, INFINITE);
         #else
 	    pthread_mutex_lock(&m_mutex);
@@ -40,7 +40,7 @@ public:
 
         void trylock()
 	{
-        #ifdef WIN32
+        #ifdef _WINDOWS
             WaitForSingleObject(m_mutex, INFINITE);
 	#else
 	    pthread_mutex_trylock(&m_mutex);
@@ -49,7 +49,7 @@ public:
 
 	void unlock()
 	{
-        #ifdef WIN32
+        #ifdef _WINDOWS
             ReleaseMutex(m_mutex);
 	#else 
 	    pthread_mutex_unlock(&m_mutex);

@@ -42,7 +42,7 @@ if len(sys.argv) < 2:
 
 # Open input file
 try:
-	f_input = codecs.open(sys.argv[1], mode='r', encoding='utf-8')
+	f_input = codecs.open(sys.argv[1], mode='r', encoding='utf-8', errors='ignore')
 except IOError:
 	sys.stderr.write("The file(%s) does not exist \n" %(sys.argv[1]))
 	sys.exit()
@@ -113,7 +113,10 @@ try:
 			explanation = temp.split('/')
 			# print explanation
 			xml_alphadict_writeword(words, phonetics, explanation)
-                        print words[0]
+			try :
+				print words[0]
+			except:
+				pass
 finally:
 	f_input.close()
 	xml_alphadict_close()

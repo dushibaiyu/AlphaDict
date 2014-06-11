@@ -1,4 +1,4 @@
-# ifdef _WINDOWS
+# ifdef WIN32
 #include <Windows.h>
 #include <direct.h>
 # endif
@@ -19,7 +19,7 @@ using namespace boost::filesystem;
 
 unsigned int Util::getTimeMS()
 {
-#if defined(_WINDOWS)
+#if defined(WIN32)
   return timeGetTime();
 #else
 	static unsigned long long start_mstime = 0;
@@ -62,7 +62,7 @@ bool Util::isFileExist(const string& filename)
 
 bool Util::createDir(const string& path)
 {
-#ifdef _WINDOWS
+#ifdef WIN32
     int ret = _mkdir(path.c_str());
 #else
     int ret = mkdir(path.c_str(), S_IRWXU);
@@ -137,7 +137,7 @@ void Util::usrHomeDir(string& path)
 
 void Util::execDir(string& strpath)
 {
-#ifdef _WINDOWS
+#ifdef WIN32
     char szAppPath[MAX_PATH] = "";
     ::GetModuleFileNameA(0, szAppPath, sizeof(szAppPath) - 1);
     //strncpy(szDest,szAppPath,sizeof(szAppPath));
@@ -183,7 +183,7 @@ void Util::removeFileName(string& path)
 
 void Util::sleep(int ms)
 {
-#ifdef _WINDOWS
+#ifdef WIN32
     Sleep(ms);
 #else
     if (ms/1000 > 0)

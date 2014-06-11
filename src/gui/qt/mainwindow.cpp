@@ -41,6 +41,20 @@ MainWindow::MainWindow(QWidget *parent) :
     m_initSettingPage = false;
 
     ui->tabWidget->removeTab(1);
+
+    QIcon icon("app.ico"); 
+    setWindowIcon(icon);
+
+#if 0
+    m_systray = new QSystemTrayIcon(this);
+    QIcon icon("trayicon.png"); 
+    m_systray->setIcon(icon);
+    m_systray->show();
+    connect(m_systray,
+            SIGNAL(activated(QSystemTrayIcon::ActivationReason)),
+            this,
+            SLOT(OnSysTrayActivated(QSystemTrayIcon::ActivationReason)));
+#endif
 }
 
 MainWindow::~MainWindow()
@@ -96,7 +110,7 @@ void MainWindow::on_indexListView_activated(const QModelIndex &index)
 
 void MainWindow::on_indexLineEdit_editingFinished()
 {
-    m_dictIndexModel->onResetIndexList(ui->indexLineEdit->text().toStdString());
+    m_dictIndexModel->onResetIndexList(ui->indexLineEdit->text().toUtf8().data());
 }
 
 void MainWindow::onUpdateText(void *v)
@@ -394,6 +408,29 @@ void MainWindow::showToolTip(QString info, QWidget* w, int displayTimeMS)
 
 void MainWindow::onAppExit()
 {
-	(*onSysExit)();
+    (*onSysExit)();
 //    QCoreApplication::quit();
 }
+
+#if 0
+void MainWindow::OnSysTrayActivated(QSystemTrayIcon::ActivationReason reason)
+{
+    activateWindow();
+    showNormal();
+}
+
+//bool MainWindow::winEvent(MSG * message, long * result)
+bool nativeEvent(const QByteArray & eventType, void * message, long * result)
+{
+    if((MSG *)message->message == WM_SIZE) {
+        if(message->wParam == SIZE_MINIMIZED) {
+	    hide();
+            return true;
+	}
+    }
+    if(message->message == WM_CLOSE) {
+        m_systray->hide();
+    }
+    return false;
+}
+#endif

@@ -3,6 +3,7 @@
 
 #include <QtWidgets/QMainWindow>
 #include <QtCore/QModelIndexList>
+#include <QtWidgets/QSystemTrayIcon>
 
 #include "Application.h"
 
@@ -88,6 +89,11 @@ private slots:
 
     void onActionVcbularyPageAdded();
 
+    //void OnSysTrayActivated(QSystemTrayIcon::ActivationReason reason);
+
+protected :
+    //bool winEvent( MSG * message, long * result);
+     //bool nativeEvent(const QByteArray & eventType, void * message, long * result);
 private:
     void showToolTip(QString info, QWidget* w, int displayTimeMS=1500);
 
@@ -95,6 +101,7 @@ private:
     VBookModel*     m_vbookModel;
 
     Ui::MainWindow *ui;
+    QSystemTrayIcon* m_systray;
 
     Configure* m_config;
     bool m_initSettingPage;

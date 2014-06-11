@@ -84,8 +84,10 @@ try:
                 words.append(phrase[0])
                 explanation.append(phrase[1])
                 xml_alphadict_writeword(words, phonetics, explanation)
-                print words[0]
-                print explanation[0]
+                try :
+				    print words[0]
+				except:
+				    pass
 
 finally:
 	f_input.close()

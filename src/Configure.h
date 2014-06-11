@@ -32,7 +32,7 @@ public:
     Configure();
     ~Configure();
 
-    void initialization();
+    int  initialization();
     void scanDictDir(vector<string>& dictFiles);
 
     void moveDictItem(int index, bool down=true);
@@ -56,7 +56,7 @@ public:
     string getVBPath() { return m_homeDir+"/vbook.xml";}
 
 private:
-    void   load(const string& xmlpath);
+    int    load(const string& xmlpath);
     void   loadLanguage();
     void   scanDictDir(const string& path, vector<string>& dictFiles);
     int    findDict(const string& path, const vector<string>& dictFiles);

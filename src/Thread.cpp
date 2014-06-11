@@ -25,9 +25,7 @@ void* thread_loop(void *v)
 
     thrd->onExit();
     thrd->m_stop = true;
-#ifdef _WINDOWS
     return 0;
-#endif
 }
 
 Thread::Thread(int sleep, bool once)
@@ -43,7 +41,7 @@ Thread::~Thread()
     abort();
     waitThreadExit();
 
-#ifdef WIN32
+#ifdef _WINDOWS
     CloseHandle(m_thrdHandle);
 #endif
 }
@@ -54,7 +52,7 @@ void Thread::start()
 #ifdef _LINUX
     if (pthread_create(&m_threadId, NULL, &thread_loop, this) == 0)
         ret = true; 
-#elif defined(WIN32)
+#elif defined(_WINDOWS)
     m_thrdHandle = (HANDLE)_beginthreadex(NULL, 0, &thread_loop, this, 0, &m_threadId);
     if (m_thrdHandle)
         ret = true;
@@ -85,7 +83,7 @@ void Thread::waitThreadExit()
     if (!isCurrentThread()) {
 #ifdef _LINUX
         pthread_join(m_threadId, NULL);
-#elif defined(WIN32)
+#elif defined(_WINDOWS)
         WaitForSingleObject(m_thrdHandle, INFINITE);
 #endif
     }
@@ -95,7 +93,7 @@ pthread_t Thread::currentThreadId()
 {
 #ifdef _LINUX
     return pthread_self();
-#elif defined(WIN32)
+#elif defined(_WINDOWS)
     return GetCurrentThreadId();
 #endif
 }

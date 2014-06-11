@@ -21,9 +21,9 @@ public:
 class SlowJob: public Task
 {
 public:
-      SlowJob(Application *owner):m_owner(owner),Task(1000*5, true, NULL) {}
-      virtual void doWork();
-      virtual ~SlowJob(){}
+    SlowJob(Application *owner):m_owner(owner),Task(1000*5, true, NULL) {}
+    virtual void doWork();
+    virtual ~SlowJob(){}
 private:
     Application* m_owner;
 };
@@ -35,13 +35,13 @@ class Application: public TaskCallBack
 friend class SlowJob;
 public:
     Application();
-	virtual ~Application();
+    virtual ~Application();
 
-    void initialization();
-	bool isInit() {return m_init;}
+    int initialization();
+    bool isInit() {return m_init;}
 
-	/* TaskCallBack*/
-	virtual void onTaskDone();
+    /* TaskCallBack*/
+    virtual void onTaskDone();
     MessageQueue* sysMessageQ() { return m_sysMessageQ; }
     MessageQueue* uiMessageQ()  { return m_uiMessageQ;  }
     Configure* m_configure;

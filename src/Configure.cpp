@@ -1,4 +1,4 @@
-# ifdef _WINDOWS
+# ifdef WIN32
 #include <Windows.h>
 # endif
 
@@ -12,6 +12,7 @@
 #include "Log.h"
 #include "Application.h"
 #include "Util.h"
+#include "CharUtil.h"
 #include "DictManager.h"
 #include "MessageQueue.h"
 #include "Configure.h"
@@ -39,32 +40,45 @@ Configure::~Configure()
     m_doc.SaveFile(m_configFile.c_str());
 }
 
-void Configure::initialization()
+int Configure::initialization()
 {
+    int ret = 0;
     Util::usrHomeDir(m_homeDir);
     m_configFile = m_homeDir + "/configure.xml";
     g_log(LOG_INFO, "home direcotry:(%s)\n", m_homeDir.c_str());
 
-#ifdef _WINDOWS
+#ifdef WIN32
     m_dataDir = m_homeDir + "/system";
 #else
     m_dataDir = DATADIR;
 #endif
-    //Util::execDir(m_dataDir);
     g_log(LOG_INFO, "system dir :(%s)\n", m_dataDir.c_str());
     if (!Util::isDirExist(m_homeDir)) {
-         AL_ASSERT(Util::createDir(m_homeDir) == true, "{Configure} can't create home dir\n");
-         string path = m_dataDir;
-         Util::copyFile(m_dataDir + "/configure.xml.in", m_configFile);
+         if (Util::createDir(m_homeDir) == true) {
+             string path = m_dataDir;
+             Util::copyFile(m_dataDir + "/configure.xml.in", m_configFile);
+         } else {
+         #ifdef WIN32
+             g_log.e("can't create home direcotry\n");
+             return ERR_MKHOME;
+         #else
+             AL_ASSERT(false, "can't create home direcotry\n");
+         #endif
+         }
          //Util::copyFile(m_dataDir + "/language.txt.in", m_homeDir + "/language.txt");
     }
     if (!Util::isFileExist(m_configFile)) {
-        AL_ASSERT( Util::copyFile(m_dataDir + "/configure.xml.in", m_configFile) == true,
-                   "{Configure} can't create home dir\n");
+        if (Util::copyFile(m_dataDir + "/configure.xml.in", m_configFile) == false) {
+        #ifdef WIN32
+            g_log.e("{Configure} can't create home dir\n");
+            return ERR_CPCFG;
+        #else
+            AL_ASSERT(false, "{Configure} can't create home dir\n");
+        #endif
+        }
     }
 
-    load(m_configFile);
-
+    ret = load(m_configFile);
     loadLanguage();
     
     Message msg;
@@ -73,11 +87,19 @@ void Configure::initialization()
     msg.strArg2 = m_detLan;
     msg.pArg1 = &m_languages;
     g_application.uiMessageQ()->push(msg);
+    return ret;
 }
 
-void Configure::load(const string& xmlpath)
+int Configure::load(const string& xmlpath)
 {
+#ifdef WIN32
+    if (m_doc.LoadFile(xmlpath.c_str()) != XML_NO_ERROR) {
+        g_log.e("{Configure} can't load xml\n");
+        return ERR_LDCFG;
+    }
+#else
     AL_ASSERT(m_doc.LoadFile(xmlpath.c_str()) == XML_NO_ERROR, "{Configure} can't load xml\n");
+#endif
     XMLElement* rootElement = m_doc.RootElement();
 
     XMLElement* tempElement = rootElement->FirstChildElement("srclan");
@@ -104,12 +126,12 @@ void Configure::load(const string& xmlpath)
     XMLElement* dictElement = dictsElement->FirstChildElement();
     while (dictElement) {
         struct DictNode dict;
-		const char* textE;
+        const char* textE;
         int pos;
 
         if (dictElement->FirstChildElement("path")) {
-		    if ((textE = dictElement->FirstChildElement("path")->GetText()) != NULL)
-		        dict.path = textE;
+            if ((textE = dictElement->FirstChildElement("path")->GetText()) != NULL)
+                dict.path = textE;
         }
 
         if ((pos = findDict(dict.path, dictFiles)) == -1 ) {
@@ -124,25 +146,25 @@ void Configure::load(const string& xmlpath)
             dict.open   = string(dictElement->Attribute("open"));
 
         if (dictElement->FirstChildElement("srclan")) {
-		    if ((textE = dictElement->FirstChildElement("srclan")->GetText()) != NULL)
-		        dict.srclan = textE;
+            if ((textE = dictElement->FirstChildElement("srclan")->GetText()) != NULL)
+                dict.srclan = textE;
         }
         if (dictElement->FirstChildElement("detlan")) {
-		    if ((textE = dictElement->FirstChildElement("detlan")->GetText()) != NULL)
-		        dict.detlan = textE;
+	    if ((textE = dictElement->FirstChildElement("detlan")->GetText()) != NULL)
+                dict.detlan = textE;
         }
 
         if (dictElement->FirstChildElement("name")) {
-		    if ((textE = dictElement->FirstChildElement("name")->GetText()) != NULL)
-		        dict.name = textE;
+            if ((textE = dictElement->FirstChildElement("name")->GetText()) != NULL)
+                dict.name = textE;
         }
 
         if (dictElement->FirstChildElement("summary")) {
-		    if ((textE = dictElement->FirstChildElement("summary")->GetText()) != NULL)
-		        dict.summary = textE;
+            if ((textE = dictElement->FirstChildElement("summary")->GetText()) != NULL)
+	        dict.summary = textE;
         }
         m_dictNodes.push_back(dict);
-		dictElement = dictElement->NextSiblingElement();
+	dictElement = dictElement->NextSiblingElement();
     }
 
     vector<string>::iterator iter = dictFiles.begin();
@@ -158,6 +180,7 @@ void Configure::load(const string& xmlpath)
     }
 
     m_doc.SaveFile(xmlpath.c_str());
+    return 0;
 }
 
 void Configure::scanDictDir(vector<string>& dictFiles)
@@ -171,10 +194,19 @@ void Configure::scanDictDir(vector<string>& dictFiles)
 
 void Configure::scanDictDir(const string& path, vector<string>& dictFiles)
 {
-#ifdef _WINDOWS
+#ifdef WIN32
     boost::filesystem::path p(path);
-    for (directory_iterator iter(p); iter != directory_iterator(); iter++) {
-        dictFiles.push_back(iter->path().string());
+    try {
+        for (directory_iterator iter(p); iter != directory_iterator(); iter++) {
+            string mbpath = iter->path().string();
+            const char* nm = mbpath.c_str();
+            char *nm2 = CharUtil::mbsrtoutf8s(nm);
+            string utf8path = string(nm2);
+            free(nm2);
+            dictFiles.push_back(utf8path);
+        }
+    } catch (const filesystem_error& ex) {
+        g_log(LOG_ERROR, "{scanDictDir}: %s\n", ex.what());
     }
 #else
     struct dirent *ep;
@@ -209,7 +241,7 @@ void Configure::loadLanguage()
     string strTemp(buf);
     vector<string> splitVec;
     boost::split(splitVec, strTemp, boost::is_any_of("\n"),
-			     boost::algorithm::token_compress_on);
+                 boost::algorithm::token_compress_on);
 
     vector<string>::iterator iter;
     for (iter=splitVec.begin(); iter!=splitVec.end(); iter++) {

@@ -27,14 +27,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <None Include="small.ico">
-      <Filter>Header Files\Resource Files</Filter>
-    </None>
-    <None Include="AlphaDict.ico">
-      <Filter>Header Files\Resource Files</Filter>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
     <ClInclude Include="Resource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -125,6 +117,9 @@
     <ClInclude Include="..\..\..\src\CharUtil.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\src\win32\resource.h">
+      <Filter>Header Files\Resource Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\src\Application.cpp">
@@ -207,6 +202,16 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="AlphaDict.rc" />
+    <None Include="..\..\..\src\win32\AlphaDict.ico">
+      <Filter>Header Files\Resource Files</Filter>
+    </None>
+    <None Include="..\..\..\src\win32\small.ico">
+      <Filter>Header Files\Resource Files</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\..\..\src\win32\AlphaDict.rc">
+      <Filter>Header Files\Resource Files</Filter>
+    </ResourceCompile>
   </ItemGroup>
 </Project>

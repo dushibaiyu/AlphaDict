@@ -78,10 +78,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <None Include="AlphaDict.ico" />
-    <None Include="small.ico" />
-  </ItemGroup>
-  <ItemGroup>
     <ClInclude Include="..\..\..\src\alphadict.h" />
     <ClInclude Include="..\..\..\src\Application.h" />
     <ClInclude Include="..\..\..\src\CharUtil.h" />
@@ -111,10 +107,8 @@
     <ClInclude Include="..\..\..\src\Util.h" />
     <ClInclude Include="..\..\..\src\VocabularyBook.h" />
     <ClInclude Include="..\..\..\src\win32\config.h" />
+    <ClInclude Include="..\..\..\src\win32\resource.h" />
     <ClInclude Include="Resource.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include="AlphaDict.rc" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\src\Application.cpp" />
@@ -143,6 +137,13 @@
     <ClCompile Include="..\..\..\src\Thread.cpp" />
     <ClCompile Include="..\..\..\src\Util.cpp" />
     <ClCompile Include="..\..\..\src\VocabularyBook.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\..\src\win32\AlphaDict.ico" />
+    <None Include="..\..\..\src\win32\small.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\..\..\src\win32\AlphaDict.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

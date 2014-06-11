@@ -1,4 +1,4 @@
-# ifdef _WINDOWS
+# ifdef WIN32
 #include <Windows.h>
 # endif
 
@@ -154,6 +154,39 @@ char* CharUtil::ucs4StrToUTF8Str(const u32 *ucs, size_t* u8slen)
     return u8s;
 }
 
+char* CharUtil::mbsrtoutf8s(const char *mbs)
+{
+#ifdef _WINDOWS
+    size_t total = strlen(mbs);
+    total = (total+1) * 4;
+    wchar_t *ws = (wchar_t *)malloc(total);
+    memset(ws, '\0', total);
+    int len = MultiByteToWideChar(CP_ACP, 0, mbs, -1, ws, total);
+    if (len > 0 && len < 0xFFFD) {
+        len = len * UCS4C_TO_U8BYTES_MAX + 1;
+        char *u8s = (char *)malloc(len);
+        memset(u8s, '\0', len);
+        WideCharToMultiByte(CP_UTF8, 0, ws, -1, u8s, len, NULL, NULL);
+        free(ws);
+        return u8s;
+    }
+    return NULL;
+#endif
+}
+
+wchar_t* CharUtil::utf8srtowcs(const char *u8s)
+{
+#ifdef _WINDOWS
+    size_t total = (strlen(u8s) + 1)*4;
+    wchar_t *ws = (wchar_t *)malloc(total);
+    memset(ws, '\0', total);
+    int len = MultiByteToWideChar(CP_UTF8, 0, u8s, -1, ws, total);
+    if (len > 0 && len < 0xFFFD)
+        return ws;
+    else
+        return NULL;
+#endif
+}
 /* This piece of code comes from an example of mbrtowc function of GNU libc. */
 wchar_t CharUtil::mbrtowc_r(char** mb)
 {

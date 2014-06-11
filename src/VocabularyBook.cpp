@@ -53,6 +53,7 @@ bool VocabularyBook::load(const string& bookfile)
         m_wdlist.push_back(item);
 		wordElement = wordElement->NextSiblingElement();
     }
+    return true;
 }
 
 bool VocabularyBook::add(const string& word)

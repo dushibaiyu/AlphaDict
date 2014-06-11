@@ -53,7 +53,7 @@ private:
     void lookupCandidate(tree_node<aldict_charindex>::treeNodePtr parent,
                          string& header, IndexList& candidate);
     int  bsearch(tree_node<aldict_charindex>::treeNodePtr parent,
-                 wchar_t key, int min, int max);
+                 u4char_t key, int min, int max);
 
     void* getBlock(int blk);
     

@@ -43,7 +43,13 @@ AldictDocument::~AldictDocument()
 
 bool AldictDocument::loadDict(const std::string& dictpath)
 {
+#ifdef _WINDOWS
+   wchar_t *wdictname = CharUtil::utf8srtowcs(dictpath.c_str());
+   if (wdictname != NULL)
+       m_dictFile = _wfopen(wdictname, L"rb"); 
+#else
     m_dictFile = fopen(dictpath.c_str(),"rb");
+#endif
 	if (m_dictFile == NULL) {
 	    g_log.e("Can't open dict file:(%s)", dictpath.c_str());
 		return false;
@@ -143,7 +149,7 @@ bool AldictDocument::lookup(const string& word, vector<struct aldict_dataitem>& 
 }
 
 int AldictDocument::bsearch(tree_node<aldict_charindex>::treeNodePtr parent,
-                            wchar_t key, int min, int max)
+                            u4char_t key, int min, int max)
 {
     int mid = (min + max) / 2;
     u32 chr = ald_read_u32(parent->child(mid)->value().wchr);
@@ -536,7 +542,13 @@ void AldictDocument::writeToXml(const std::string& path)
 
 bool AldictDocument::support(const string& dictname)
 {
+#ifdef _WINDOWS
+   wchar_t *wdictname = CharUtil::utf8srtowcs(dictname.c_str());
+   if (wdictname != NULL)
+       m_dictFile = _wfopen(wdictname, L"rb"); 
+#else
    m_dictFile = fopen(dictname.c_str(),"rb");
+#endif
 	if (m_dictFile == NULL) {
 	    g_log.e("Can't open dict file:(%s)", dictname.c_str());
 		return false;

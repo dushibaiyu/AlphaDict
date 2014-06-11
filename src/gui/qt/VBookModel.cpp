@@ -100,7 +100,7 @@ QString VBookModel::preExamExpl()
 bool VBookModel::testInput(const QString& input, int& score)
 {
     string result = m_vocabularyBook->getWord(examIndex);
-    if (result.compare(input.toStdString()) == 0)
+    if (result.compare(input.toUtf8().data()) == 0)
         return true;
     return false;
 }

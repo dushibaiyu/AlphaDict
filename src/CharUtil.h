@@ -11,6 +11,8 @@ public:
     static int       ucs4slen(const u32 *ucs);
     static u4char_t* utf8StrToUcs4Str(const char *u8s, size_t* u4slen=NULL);
 
+    static char*    mbsrtoutf8s(const char *mbs);
+    static wchar_t* utf8srtowcs(const char *u8s);
     static wchar_t  mbrtowc_r(char** mb);
     static wchar_t* mbsrtowcs_r(const char *mb);
     static char*    wcsrtombs_r(const wchar_t *wc);

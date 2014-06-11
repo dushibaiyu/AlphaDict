@@ -8,7 +8,13 @@ typedef unsigned  int   u4char_t;
 
 typedef unsigned int address_t;
 
-#ifdef _WINDOWS
+enum APP_ERRCODE {
+    ERR_MKHOME = -5,
+    ERR_CPCFG,
+    ERR_LDCFG,
+};
+
+#ifdef WIN32
 typedef unsigned int pthread_t;
 typedef void* HANDLE;
 

@@ -208,9 +208,9 @@ void* schedule(void *owner)
         if (!canScheldule) {
             //printf("{schedule} m_curTask != NULL\n");
         #ifdef _WINDOWS
-           Sleep(20);
+           Sleep(40);
         #else
-            usleep(20*1000); /* 20ms*/
+            usleep(40*1000); /* 20ms*/
             pthread_yield();
         #endif
             continue;
@@ -244,6 +244,7 @@ void* schedule(void *owner)
              */
             int timeout = start - now;
             //printf("schedul timeout:%d, start:%u, now:%u\n", timeout, start, now);
+            //g_log.d("schedul timeout:%d, start:%u, now:%u\n", timeout, start, now);
             int wait_status = tmgr->m_queueCond.waitEvent(timeout);
             if (wait_status == -2) {
                 goto EXIT;
