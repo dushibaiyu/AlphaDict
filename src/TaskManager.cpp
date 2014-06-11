@@ -9,7 +9,7 @@
  * @change
  *     Mar 3,2013  Created.  [LiQiong Lee]
  */
-# ifdef _WINDOWS
+# ifdef WIN32
 #include <Windows.h>
 #include <Process.h>
 #ifndef _MT
@@ -24,7 +24,7 @@
 #include "Util.h"
 #include "Log.h"
 
-#ifdef _WINDOWS
+#ifdef WIN32
 unsigned WINAPI schedule(void* owner);
 unsigned WINAPI execute(LPVOID owner);
 #else
@@ -127,7 +127,7 @@ void TaskManager::addTask(Task *tsk, int delay)
 
 void TaskManager::waitForThrdExit()
 {
-#ifdef _WINDOWS
+#ifdef WIN32
     int count = m_thrdhandle.size();
     HANDLE *threads = new HANDLE[count];
     std::copy(threads, threads + count, m_thrdhandle.begin());
@@ -182,7 +182,7 @@ void TaskManager::dump()
 	printf("dump taskmanager end\n");
 }
 
-#ifdef _WINDOWS
+#ifdef WIN32
 unsigned WINAPI schedule(void* owner)
 #else
 void* schedule(void *owner)
@@ -207,10 +207,8 @@ void* schedule(void *owner)
 
         if (!canScheldule) {
             //printf("{schedule} m_curTask != NULL\n");
-        #ifdef _WINDOWS
-           Sleep(40);
-        #else
-            usleep(40*1000); /* 20ms*/
+           Util::sleep(40);
+        #ifdef _LINUX
             pthread_yield();
         #endif
             continue;
@@ -276,7 +274,7 @@ EXIT:
     g_log.d("{schedule} thread exit\n");
 	return NULL;
 }
-#ifdef _WINDOWS
+#ifdef WIN32
 unsigned WINAPI execute(LPVOID owner)
 #else
 void* execute(void *owner)

@@ -4,7 +4,10 @@
 
 #include <wchar.h>
 #include <stdio.h>
-
+#ifdef _LINUX
+#include <stdlib.h>
+#include <string.h>
+#endif
 #include "CharUtil.h"
 
 #define UCS4C_TO_U8BYTES_MAX    6
@@ -156,7 +159,7 @@ char* CharUtil::ucs4StrToUTF8Str(const u32 *ucs, size_t* u8slen)
 
 char* CharUtil::mbsrtoutf8s(const char *mbs)
 {
-#ifdef _WINDOWS
+#ifdef WIN32
     size_t total = strlen(mbs);
     total = (total+1) * 4;
     wchar_t *ws = (wchar_t *)malloc(total);
@@ -176,7 +179,7 @@ char* CharUtil::mbsrtoutf8s(const char *mbs)
 
 wchar_t* CharUtil::utf8srtowcs(const char *u8s)
 {
-#ifdef _WINDOWS
+#ifdef WIN32
     size_t total = (strlen(u8s) + 1)*4;
     wchar_t *ws = (wchar_t *)malloc(total);
     memset(ws, '\0', total);

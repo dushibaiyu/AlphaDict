@@ -10,11 +10,12 @@
  */
 #ifndef _THDCOND_H_
 #define _THDCOND_H_
-# ifdef _WINDOWS
+# ifdef WIN32
 #include <windows.h>
 #define  cond_handle   HANDLE
 #define  mutex_handle  HANDLE
 #else
+#include <pthread.h>
 #define  cond_handle   pthread_cond_t    
 #define  mutex_handle  pthread_mutex_t
 #endif

@@ -7,7 +7,7 @@
 
 class Thread
 {
-#ifdef _WINDOWS
+#ifdef WIN32
 friend unsigned WINAPI thread_loop(void *v);
 #else
 friend void* thread_loop(void *v);
@@ -35,8 +35,9 @@ protected:
     bool m_reqAbort;
     int m_sleepTimeMs;
     bool m_stop;
-
+#ifdef WIN32
     HANDLE  m_thrdHandle;
+#endif
 };
 
 #endif

@@ -8,7 +8,7 @@
 #ifndef _MUTEXLOCK_H_
 #define _MUTEXLOCK_H_
 
-# ifdef _WINDOWS
+# ifdef WIN32
 #include <windows.h>
 #define mutex_handle  HANDLE
 # else
@@ -22,7 +22,7 @@ public:
 
 	~MutexCriticalSection()
 	{
-        #ifdef _WINDOWS
+        #ifdef WIN32
             CloseHandle(m_mutex);
         #else
 	    pthread_mutex_destroy(&m_mutex);
@@ -31,7 +31,7 @@ public:
 
 	void lock()
 	{
-	#ifdef _WINDOWS
+	#ifdef WIN32
             WaitForSingleObject(m_mutex, INFINITE);
         #else
 	    pthread_mutex_lock(&m_mutex);
@@ -40,7 +40,7 @@ public:
 
         void trylock()
 	{
-        #ifdef _WINDOWS
+        #ifdef WIN32
             WaitForSingleObject(m_mutex, INFINITE);
 	#else
 	    pthread_mutex_trylock(&m_mutex);
@@ -49,7 +49,7 @@ public:
 
 	void unlock()
 	{
-        #ifdef _WINDOWS
+        #ifdef WIN32
             ReleaseMutex(m_mutex);
 	#else 
 	    pthread_mutex_unlock(&m_mutex);

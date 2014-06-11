@@ -4,7 +4,7 @@
  *     
  * 
  */
-# ifdef _WINDOWS
+# ifdef WIN32
 #include <Windows.h>
 # endif
 #include <wchar.h>
@@ -43,7 +43,7 @@ AldictDocument::~AldictDocument()
 
 bool AldictDocument::loadDict(const std::string& dictpath)
 {
-#ifdef _WINDOWS
+#ifdef WIN32
    wchar_t *wdictname = CharUtil::utf8srtowcs(dictpath.c_str());
    if (wdictname != NULL)
        m_dictFile = _wfopen(wdictname, L"rb"); 
@@ -542,7 +542,7 @@ void AldictDocument::writeToXml(const std::string& path)
 
 bool AldictDocument::support(const string& dictname)
 {
-#ifdef _WINDOWS
+#ifdef WIN32
    wchar_t *wdictname = CharUtil::utf8srtowcs(dictname.c_str());
    if (wdictname != NULL)
        m_dictFile = _wfopen(wdictname, L"rb"); 

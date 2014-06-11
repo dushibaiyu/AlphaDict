@@ -1,4 +1,4 @@
-# ifdef _WINDOWS
+# ifdef WIN32
 #include <Windows.h>
 #include <Process.h>
 # endif
@@ -7,7 +7,7 @@
 #include "Log.h"
 #include "Thread.h"
 
-#ifdef _WINDOWS
+#ifdef WIN32
 unsigned WINAPI thread_loop(void *v)
 #else
 void* thread_loop(void *v)
@@ -41,7 +41,7 @@ Thread::~Thread()
     abort();
     waitThreadExit();
 
-#ifdef _WINDOWS
+#ifdef WIN32
     CloseHandle(m_thrdHandle);
 #endif
 }
@@ -52,7 +52,7 @@ void Thread::start()
 #ifdef _LINUX
     if (pthread_create(&m_threadId, NULL, &thread_loop, this) == 0)
         ret = true; 
-#elif defined(_WINDOWS)
+#elif defined(WIN32)
     m_thrdHandle = (HANDLE)_beginthreadex(NULL, 0, &thread_loop, this, 0, &m_threadId);
     if (m_thrdHandle)
         ret = true;
@@ -83,7 +83,7 @@ void Thread::waitThreadExit()
     if (!isCurrentThread()) {
 #ifdef _LINUX
         pthread_join(m_threadId, NULL);
-#elif defined(_WINDOWS)
+#elif defined(WIN32)
         WaitForSingleObject(m_thrdHandle, INFINITE);
 #endif
     }
@@ -93,7 +93,7 @@ pthread_t Thread::currentThreadId()
 {
 #ifdef _LINUX
     return pthread_self();
-#elif defined(_WINDOWS)
+#elif defined(WIN32)
     return GetCurrentThreadId();
 #endif
 }

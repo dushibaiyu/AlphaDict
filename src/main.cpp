@@ -15,7 +15,7 @@ static void on_exit()
 {
 }
 
-#ifdef _WINDOWS
+#ifdef WIN32
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, int nCmdShow)
 #else
 int main(int argc, char* argv[])
@@ -29,7 +29,7 @@ int main(int argc, char* argv[])
     ret = g_application.initialization();
 
 #if CONFIG_QT5
-#ifdef _WINDOWS
+#ifdef WIN32
     int argc = 0;
     char** argv = 0;
 #endif

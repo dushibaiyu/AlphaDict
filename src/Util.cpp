@@ -187,7 +187,7 @@ void Util::sleep(int ms)
     Sleep(ms);
 #else
     if (ms/1000 > 0)
-        sleep(ms/1000)
+        sleep(ms/1000);
     //EINVAL usec is not smaller than 1000000.
     if (ms%1000 > 0)
         usleep((ms%1000)*1000);

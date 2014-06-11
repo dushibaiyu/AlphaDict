@@ -42,8 +42,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
     ui->tabWidget->removeTab(1);
 
-    QIcon icon("app.ico"); 
-    setWindowIcon(icon);
+    //QIcon icon("app.ico"); 
+    //setWindowIcon(icon);
 
 #if 0
     m_systray = new QSystemTrayIcon(this);

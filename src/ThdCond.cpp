@@ -19,7 +19,7 @@
 #include "ThdCond.h"
 #include "Util.h"
 
-#ifdef _WINDOWS
+#ifdef WIN32
 #define SET_EVENT_BROADCAST(n) \
 do {\
 for (int i=0; i< n; i++) \
@@ -31,7 +31,7 @@ for (int i=0; i< n; i++) \
 ThdCond::ThdCond()
  :m_unblock(false)
 {
-#ifdef _WINDOWS
+#ifdef WIN32
     m_cv = CreateEvent(NULL, FALSE, FALSE, NULL);
     assert(m_cv != NULL);
     //m_mutex =  CreateMutex(NULL, FALSE, NULL);
@@ -47,7 +47,7 @@ ThdCond::ThdCond()
 ThdCond::~ThdCond()
 {
     /* Use have to wakeup all blocked thread */
-#ifdef _WINDOWS
+#ifdef WIN32
     CloseHandle(m_cv);
     //CloseHandle(m_mutex);
 #else
@@ -65,13 +65,13 @@ int ThdCond::consume(void *v, int timeout)
     while (!canConsume(v)) {
         //printf("can't consume consume to wait\n");
         if (timeout == -1) {
-        #ifdef _WINDOWS
+        #ifdef WIN32
             WaitForSingleObject(m_cv, INFINITE);
         #else
             pthread_cond_wait(&m_cv, &m_mutex);
         #endif
         } else {
-        #ifdef _WINDOWS
+        #ifdef WIN32
             DWORD result = WaitForSingleObject(m_cv, timeout);
             if (result == WAIT_TIMEOUT) {
                 return -1;
@@ -114,13 +114,13 @@ void ThdCond::produce(void *v, bool broadcast,  int blockthrds)
 #endif
 
     if (broadcast == false) {
-    #ifdef _WINDOWS
+    #ifdef WIN32
         SetEvent(m_cv);
     #else
         pthread_cond_signal(&m_cv);
     #endif
     } else {
-    #ifdef _WINDOWS
+    #ifdef WIN32
         SET_EVENT_BROADCAST(blockthrds);
     #else
         pthread_cond_broadcast(&m_cv);
@@ -138,13 +138,13 @@ int ThdCond::waitEvent(int timeout/*ms*/)
     pthread_mutex_lock(&m_mutex);
 #endif
     if (timeout == -1) {
-    #ifdef _WINDOWS
+    #ifdef WIN32
         WaitForSingleObject(m_cv, INFINITE);
     #else
         pthread_cond_wait(&m_cv, &m_mutex);
     #endif
     } else {
-    #ifdef _WINDOWS
+    #ifdef WIN32
             DWORD result = WaitForSingleObject(m_cv, timeout);
             if (result == WAIT_TIMEOUT) {
                 return -1;
@@ -189,13 +189,13 @@ void ThdCond::setEvent(bool broadcast, int blockthrds)
 #endif
 
     if (broadcast == false) {
-    #ifdef _WINDOWS
+    #ifdef WIN32
         SetEvent(m_cv);
     #else
         pthread_cond_signal(&m_cv);
     #endif
     } else {
-    #ifdef _WINDOWS
+    #ifdef WIN32
         SET_EVENT_BROADCAST(blockthrds);
     #else
         pthread_cond_broadcast(&m_cv);
@@ -211,7 +211,7 @@ void ThdCond::unblockAll(int blockthrds)
 {
     //pthread_mutex_lock(&m_mutex);
     m_unblock = true;
-#ifdef _WINDOWS
+#ifdef WIN32
     SET_EVENT_BROADCAST(blockthrds);
 #else
     pthread_cond_broadcast(&m_cv);

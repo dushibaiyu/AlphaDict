@@ -14,5 +14,7 @@
         <file>res/up.png</file>
         <file>res/remove.png</file>
         <file>res/clear_all.png</file>
+        <file>res/appicon.png</file>
+        <file>res/app.ico</file>
     </qresource>
 </RCC>

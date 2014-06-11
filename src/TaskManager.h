@@ -57,7 +57,7 @@ protected:
 };
 
 class TaskManager {
-#ifdef _WINDOWS
+#ifdef WIN32
 friend unsigned WINAPI schedule(void* owner);
 friend unsigned WINAPI execute(LPVOID owner);
 #else
@@ -85,7 +85,7 @@ private:
 	void waitForThrdExit();
 
 	std::vector<pthread_t> m_threadid;
-#ifdef _WINDOWS
+#ifdef WIN32
         std::vector<HANDLE> m_thrdhandle;
 #endif
 

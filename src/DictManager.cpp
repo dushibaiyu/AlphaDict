@@ -1,4 +1,4 @@
-# ifdef _WINDOWS
+# ifdef WIN32
 #include <Windows.h>
 # endif
 
@@ -101,10 +101,8 @@ bool DictManager::loadDict(bool more)
         if (m_dictOpen[i].task != NULL) {
             m_dictOpen[i].task->abort();
             do {
-            #ifdef _WINDOWS
-                Sleep(20);
-            #else
-                usleep(1000*20);
+            Util::sleep(20);
+            #ifdef _LINUX
                 pthread_yield();
             #endif
             }while(m_dictOpen[i].task != NULL);

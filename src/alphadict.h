@@ -1,6 +1,6 @@
 #ifndef _ALPHADICT_H_
 #define _ALPHADICT_H_
-# ifdef _WINDOWS
+# ifdef WIN32
 #include <Windows.h>
 #include "win32/config.h"
 # endif
